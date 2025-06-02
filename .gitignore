@@ -134,3 +134,25 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# OS generated files
+.DS_Store
+**/.DS_Store
+
+# macOS generated files
+.AppleDouble
+.LSOverride
+
+# Windows generated files
+desktop.ini
+
+# Linux generated files
+.directory
+.Trash-*
+
+# Vim generated files
+*.swp
+
+# Visual Studio Code generated files
+.vscode/*
+!.vscode/settings
