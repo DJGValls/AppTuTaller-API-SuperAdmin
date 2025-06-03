@@ -41,7 +41,7 @@ export const getPermissions = async (req: Request, res: Response, next: NextFunc
 
         // Se extrae el primer segmento de la ruta (originalUrl) mediante una regex
         // Por ejemplo, si originalUrl es "/module/accion", currentModule tomará "module".
-        const currentModule = originalUrl.replace(/^\/api\/([^\/]+).*/, "$1");
+        const currentModule = originalUrl.replace(/^\/api\/([^\/\?]+).*/, "$1");
 
         // Buscamos en el arreglo 'permissions' el objeto cuyo método coincida con el método HTTP de la solicitud.
         // Se utiliza la conversión de 'method' a través del enum (o mapeo) 'Method'.
