@@ -1,4 +1,4 @@
-import { Query } from "types/RepositoryTypes";
+import { Params, Query } from "types/RepositoryTypes";
 import { InterfaceUserRepository, InterfaceUserService, User } from "../types/UserTypes";
 
 export class UserService implements InterfaceUserService {
@@ -11,8 +11,9 @@ export class UserService implements InterfaceUserService {
     async createUser(user: User): Promise<User> {
         return await this.userRepository.create(user);
     }
-    async findUsers(query?: Query): Promise<User[]> {
-        return await this.userRepository.find(query);
+    async findUsers(query?: Query, params?: Params): Promise<User[]> {
+        const result = await this.userRepository.find(query, params);
+        return result;
     }
     async findUserById(id: string): Promise<User | null> {
         return await this.userRepository.findById(id);

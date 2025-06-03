@@ -1,4 +1,4 @@
-import { Query } from "types/RepositoryTypes";
+import { Params, Query } from "types/RepositoryTypes";
 import { InterfaceRolesRepository, InterfaceRolesService, Roles } from "types/RolesTypes";
 
 
@@ -12,8 +12,8 @@ export class RolesService implements InterfaceRolesService {
     async createRoles(roles: Roles): Promise<Roles> {
         return await this.rolesRepository.create(roles);
     }
-    async findRoles(query?: Query): Promise<Roles[]> {
-        return await this.rolesRepository.find(query);
+    async findRoles(query?: Query, params?: Params): Promise<Roles[]> {
+        return await this.rolesRepository.find(query, params);
     }
     async findRolesById(id: string): Promise<Roles | null> {
         return await this.rolesRepository.findById(id);
