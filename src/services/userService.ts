@@ -15,6 +15,9 @@ export class UserService implements InterfaceUserService {
         const result = await this.userRepository.find(query, params);
         return result;
     }
+    async countUsers(query?: Query): Promise<number> {
+        return await this.userRepository.countUsers(query);
+    }
     async findUserById(id: string): Promise<User | null> {
         return await this.userRepository.findById(id);
     }

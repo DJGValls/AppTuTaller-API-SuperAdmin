@@ -11,6 +11,9 @@ export class UserRepository implements InterfaceUserRepository {
     async find(query?: Query, params?: Params): Promise<User[]> {
         const sortQuery = params?.sort ? params.sort : {};
         const populateQuery = params?.populate ? params.populate : [];
+        const page = params?.page ? Number(params.page) : 1;
+        const perPage = params?.perPage ? Number(params.perPage) : 10;
+        const skip = (page - 1) * perPage;
         let mongoQuery: any = {};
         if (query) {
             Object.entries(query).forEach(([key, value]) => {
@@ -24,11 +27,31 @@ export class UserRepository implements InterfaceUserRepository {
                 }
             });
         }
-        const result = await UserModel.find(mongoQuery)
+        const users = await UserModel.find(mongoQuery)
             .sort(sortQuery)
             .populate(populateQuery)
+            .skip(skip)
+            .limit(perPage)
             .exec();
-        return result;
+        
+        return users;
+    }
+
+    async countUsers(query?: Query): Promise<number> {
+        let mongoQuery: any = {};
+        if (query) {
+            Object.entries(query).forEach(([key, value]) => {
+                if (value) {
+                    if (typeof value === 'string') {
+                        mongoQuery[key] = { $regex: value, $options: 'i' };
+                    } else {
+                        mongoQuery[key] = value;
+                    }
+                }
+            });
+        }
+        const total = await UserModel.countDocuments(mongoQuery).exec();
+        return total;
     }
 
     async findById(id: string): Promise<User | null> {

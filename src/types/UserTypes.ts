@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { Query, Repository } from "./RepositoryTypes";
+import { Params, Query, Repository } from "./RepositoryTypes";
 
 export interface User extends Document{
     name: string;
@@ -20,12 +20,13 @@ export interface User extends Document{
 }
 
 export interface InterfaceUserRepository extends Repository<User>{
+    countUsers(query?: Query): Promise<number>;
     findOne(query: Query): Promise<User | null>; // Para buscar cualquier usuario por un valor, ya sea name, firstName, email etc...
 }
 
 export interface InterfaceUserService {
     createUser(user: User): Promise<User>;
-    findUsers(query?: Query): Promise<User[]>;
+    findUsers(query?: Query, params?: Params): Promise<User[]>;
     findUserById(id: string): Promise<User | null>;
     findUserByEmail(email: string): Promise<User | null>;
     updateUser(id: string, user: Partial<User>): Promise<User | null>;

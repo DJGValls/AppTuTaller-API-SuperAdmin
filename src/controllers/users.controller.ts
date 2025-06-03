@@ -16,14 +16,26 @@ export const findUsers = async (req: Request, res: Response) => {
         const params = {
             sort: sortsBuilder(req.query.sort),
             populate: populateBuilder(req.query.populate),
-            filter: filterBuilder(req.query.filter)
+            filter: filterBuilder(req.query.filter),
+            page: req.query.page,
+            perPage: req.query.perPage,
+            all: req.query.all,
         };
         const users = await userService.findUsers(params.filter, params);
+        const total = await userService.countUsers(params.filter);
         if (users.length === 0) {
             res.status(404).json(ResponseHandler.notFound("Usuarios no encontrados", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(users, "Usuarios encontrados exitosamente"));
+        const pagination = {
+            pagination: {
+                total,
+                page: Number(params.page) || 1,
+                perPage: Number(params.perPage) || 10,
+                pages: Math.ceil(total / (Number(params.perPage) || 10)),
+            },
+        };
+        res.status(200).json(ResponseHandler.paginationSuccess(users, pagination, "Usuarios encontrados exitosamente"));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {

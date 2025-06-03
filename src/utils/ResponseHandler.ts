@@ -4,6 +4,16 @@ export interface ApiResponse<T> {
     error?: string;
     message?: string;
     statusCode: number;
+    pagination?: Pagination
+}
+
+export interface Pagination {
+    total: number;
+    page: number;
+    perPage: number;
+    totalPages: number;
+    prevPage: number | null;
+    nextPage: number | null;
 }
 
 export class ResponseHandler {
@@ -13,6 +23,17 @@ export class ResponseHandler {
             message,
             statusCode,
             data,
+        };
+    }
+
+    //success de paginacion
+    static paginationSuccess<T>(data: T, pagination: Pagination, message: string, statusCode: number = 200): ApiResponse<T> {
+        return {
+            success: true,
+            message,
+            statusCode,
+            data,
+            pagination,
         };
     }
 
@@ -52,7 +73,10 @@ export class ResponseHandler {
             statusCode,
         };
     }
-    static internalServerError(statusCode: 500, message: string | undefined = "Error desconocido del servidor"): ApiResponse<null> {
+    static internalServerError(
+        statusCode: 500,
+        message: string | undefined = "Error desconocido del servidor"
+    ): ApiResponse<null> {
         return {
             success: false,
             error: message,

@@ -6,7 +6,10 @@ export interface Params {
     populate?: string[],
     filter?: {
         [key: string]: string | string[] | Record<string, string | string[]>
-    }
+    },
+    all?: string,
+    perPage?: string,
+    page?: string,
 }
 
 export interface Repository<T = unknown> {
