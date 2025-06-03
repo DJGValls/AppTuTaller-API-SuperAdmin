@@ -13,7 +13,7 @@ export const createInitialSetup = async () => {
         // Verificar si ya existen roles
         const roles = await rolesService.findRoles();
         const users = await userService.findUsers();
-        if (roles.items.length > 0 && users.items.length > 0) return;
+        if (roles.length > 0 && users.length > 0) return;
         // Crear roles iniciales
         const adminRole = await rolesService.createRoles({
             name: "admin",

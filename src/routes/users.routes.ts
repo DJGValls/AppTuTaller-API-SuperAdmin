@@ -4,11 +4,10 @@ import { userSchema } from "schemas/user.schema";
 import { validate } from "middlewares/validate.middleware";
 import { checkRoles } from "middlewares/roles.middleware";
 import { getPermissions } from "middlewares/auth.middleware";
-import { paginationMiddleware } from "middlewares/pagination.middleware";
 
 const router = Router();
 
-router.get('/', getPermissions, paginationMiddleware, findUsers);
+router.get('/', getPermissions, findUsers);
 
 router.get('/:id', getPermissions, findUserById);
 

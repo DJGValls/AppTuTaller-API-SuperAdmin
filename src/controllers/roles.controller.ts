@@ -10,12 +10,12 @@ const rolesService = new RolesService(rolesRepository);
 
 export const findRoles = async (req: Request, res: Response) => {
     try {
-        const result = await rolesService.findRoles(req.query);
-        if (result.items.length === 0) {
+        const roles = await rolesService.findRoles();
+        if (roles.length === 0) {
             res.status(404).json(ResponseHandler.notFound("No se encontraron roles", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(result, "Roles encontrados exitosamente"));
+        res.status(200).json(ResponseHandler.success(roles, "Roles encontrados exitosamente"));
         return;
     } catch (error) {
         console.error("Error al buscar roles:", error);

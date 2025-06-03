@@ -1,5 +1,5 @@
 import { RolesModel } from "models/roles.model";
-import { PaginatedResponse, PaginationOptions, Query, SortOptions } from "types/RepositoryTypes";
+import { Query } from "types/RepositoryTypes";
 import { InterfaceRolesRepository, Roles } from "types/RolesTypes";
 
 
@@ -10,24 +10,8 @@ export class RolesRepository implements InterfaceRolesRepository {
         return await newRoles.save();
     }
 
-    async find(query?: Query, sort?: SortOptions, pagination?: PaginationOptions): Promise<PaginatedResponse<Roles>> {
-        const { page = 1, limit = 10 } = pagination || {};
-        const skip = (page - 1) * limit;
-        const queryBuilder = RolesModel.find(query || {});
-        if (sort && Object.keys(sort).length > 0) {
-            queryBuilder.sort(sort);
-        }
-        const total = await RolesModel.countDocuments(query || {});
-        const items = await queryBuilder.skip(skip).limit(limit).exec();
-        return {
-            items,
-            pagination: {
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit)
-            }
-        };
+    async find(query?: Query): Promise<Roles[]> {
+        return await RolesModel.find(query || {}).exec();
     }
 
     async findById(id: string): Promise<Roles | null> {

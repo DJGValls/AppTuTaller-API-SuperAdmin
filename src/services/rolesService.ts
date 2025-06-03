@@ -1,6 +1,5 @@
-import { PaginatedResponse, Query } from "types/RepositoryTypes";
+import { Query } from "types/RepositoryTypes";
 import { InterfaceRolesRepository, InterfaceRolesService, Roles } from "types/RolesTypes";
-import { FilterBuilder } from "utils/queryBuilders/FilterBuilder";
 
 export class RolesService implements InterfaceRolesService {
     private rolesRepository: InterfaceRolesRepository;
@@ -12,9 +11,8 @@ export class RolesService implements InterfaceRolesService {
     async createRoles(roles: Roles): Promise<Roles> {
         return await this.rolesRepository.create(roles);
     }
-    async findRoles(query?: Query): Promise<PaginatedResponse<Roles>> {
-        const { filter, sort, pagination } = FilterBuilder(query);
-        return await this.rolesRepository.find(filter, sort, pagination);
+    async findRoles(query?: Query): Promise<Roles[]> {
+        return await this.rolesRepository.find(query);
     }
     async findRolesById(id: string): Promise<Roles | null> {
         return await this.rolesRepository.findById(id);

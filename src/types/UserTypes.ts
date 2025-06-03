@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { PaginatedResponse, Query, Repository } from "./RepositoryTypes";
+import { Query, Repository } from "./RepositoryTypes";
 
 export interface User extends Document{
     name: string;
@@ -25,7 +25,7 @@ export interface InterfaceUserRepository extends Repository<User>{
 
 export interface InterfaceUserService {
     createUser(user: User): Promise<User>;
-    findUsers(query?: Query): Promise<PaginatedResponse<User>>;
+    findUsers(query?: Query): Promise<User[]>;
     findUserById(id: string): Promise<User | null>;
     findUserByEmail(email: string): Promise<User | null>;
     updateUser(id: string, user: Partial<User>): Promise<User | null>;

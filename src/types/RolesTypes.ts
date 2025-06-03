@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { PaginatedResponse, Query, Repository } from "./RepositoryTypes";
+import { Query, Repository } from "./RepositoryTypes";
 
 export interface Roles extends Document{
     name: string;
@@ -10,7 +10,7 @@ export interface InterfaceRolesRepository extends Repository<Roles>{}
 
 export interface InterfaceRolesService {
     createRoles(roles: Roles): Promise<Roles>;
-    findRoles(query?: Query): Promise<PaginatedResponse<Roles>>;
+    findRoles(query?: Query): Promise<Roles[]>;
     findRolesById(id: string): Promise<Roles | null>;
     updateRoles(id: string, roles: Partial<Roles>): Promise<Roles | null>;
     deleteRoles(id: string): Promise<boolean>;
