@@ -10,9 +10,10 @@ export class UserRepository implements InterfaceUserRepository {
 
     async find(query?: Query, params?: Params): Promise<User[]> {
         const sortQuery = params?.sort ? params.sort : {};
+        const populateQuery = params?.populate ? params.populate : [];
         const result = await UserModel.find(query || {})
             .sort(sortQuery)
-            .populate("roles")
+            .populate(populateQuery)
             .exec();
         return result;
     }

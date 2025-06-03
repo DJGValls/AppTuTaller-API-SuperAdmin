@@ -1,6 +1,6 @@
 import { Query } from "types/RepositoryTypes";
 import { ParsedQs } from "qs";
-export const sortsBuilder = (sortParam?: string | ParsedQs | (string | ParsedQs)[] | undefined): Query => {
+export const sortsBuilder = (sortParam?: string | ParsedQs | (string | ParsedQs)[] | undefined): Record<string, 1 | -1> => {
     if (!sortParam) return {};
     
     // Convertir el parámetro a string si es posible
@@ -18,7 +18,7 @@ export const sortsBuilder = (sortParam?: string | ParsedQs | (string | ParsedQs)
             sortQuery[field] = isDesc ? -1 : 1;
         });
         
-        return { sort: sortQuery };
+        return sortQuery;
     } catch (error) {
         console.error('Error building sort query:', error);
         return {};

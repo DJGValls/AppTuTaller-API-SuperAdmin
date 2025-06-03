@@ -2,10 +2,8 @@
 export type Query = Record<string, unknown>;
 
 export interface Params  {
-    sort?: {
-        field: string,
-        order: 1 | -1
-    }
+    sort?: Record<string, 1 | -1>,
+    populate?: string[]
 }
 
 export interface Repository<T = unknown> {

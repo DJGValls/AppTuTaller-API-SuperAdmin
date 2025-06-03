@@ -5,14 +5,18 @@ import { InterfaceUserRepository, User } from "types/UserTypes";
 import { ResponseHandler } from "utils/ResponseHandler";
 import mongoose from "mongoose";
 import { sortsBuilder } from "utils/queryBuilders/CustomSortsBuilder";
+import { populateBuilder } from "utils/queryBuilders/CustomPopulateBuilder";
 
 const userRepository: InterfaceUserRepository = new UserRepository();
 const userService = new UserService(userRepository);
 
 export const findUsers = async (req: Request, res: Response) => {
     try {
-        const sortQuery = sortsBuilder(req.query.sort);
-        const users = await userService.findUsers({}, sortQuery);
+       const params = {
+            sort: sortsBuilder(req.query.sort),
+            populate: populateBuilder(req.query.populate)
+        };
+        const users = await userService.findUsers({}, params);
         if (users.length === 0) {
             res.status(404).json(ResponseHandler.notFound("Usuarios no encontrados", 404));
             return;
