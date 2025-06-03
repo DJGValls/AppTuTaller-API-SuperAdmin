@@ -1,9 +1,12 @@
 
 export type Query = Record<string, unknown>;
 
-export interface Params  {
+export interface Params {
     sort?: Record<string, 1 | -1>,
-    populate?: string[]
+    populate?: string[],
+    filter?: {
+        [key: string]: string | string[] | Record<string, string | string[]>
+    }
 }
 
 export interface Repository<T = unknown> {

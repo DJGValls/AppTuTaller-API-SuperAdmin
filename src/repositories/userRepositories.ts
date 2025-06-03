@@ -11,7 +11,20 @@ export class UserRepository implements InterfaceUserRepository {
     async find(query?: Query, params?: Params): Promise<User[]> {
         const sortQuery = params?.sort ? params.sort : {};
         const populateQuery = params?.populate ? params.populate : [];
-        const result = await UserModel.find(query || {})
+        let mongoQuery: any = {};
+        if (query) {
+            Object.entries(query).forEach(([key, value]) => {
+                if (value) {
+                    if (typeof value === 'string') {
+                        // Búsqueda case-insensitive con regex para strings
+                        mongoQuery[key] = { $regex: value, $options: 'i' };
+                    } else {
+                        mongoQuery[key] = value;
+                    }
+                }
+            });
+        }
+        const result = await UserModel.find(mongoQuery)
             .sort(sortQuery)
             .populate(populateQuery)
             .exec();
