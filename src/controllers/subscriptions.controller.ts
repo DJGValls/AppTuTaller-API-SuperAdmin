@@ -87,6 +87,7 @@ export const findSubscriptionById = async (req: Request, res: Response) => {
 
 export const createSubscription = async (req: Request, res: Response) => {
     try {
+        console.log(req)
         const newSubscription: Subscription = req.body;
         const result = await subscriptionService.createSubscription(newSubscription);
         res.status(201).json(ResponseHandler.success(result, "Suscripcion creado exitosamente", 201));

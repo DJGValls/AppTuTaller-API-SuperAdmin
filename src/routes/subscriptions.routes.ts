@@ -1,20 +1,27 @@
-import { createSubscription, deleteSubscription, findSubscriptionById, findSubscriptions, updateSubscription } from "controllers/subscriptions.controller";
+import {
+    createSubscription,
+    deleteSubscription,
+    findSubscriptionById,
+    findSubscriptions,
+    updateSubscription,
+} from "controllers/subscriptions.controller";
 import { Router } from "express";
 import { getPermissions } from "middlewares/auth.middleware";
 import { checkRoles } from "middlewares/roles.middleware";
 import { validate } from "middlewares/validate.middleware";
-import { subscriptionSchema } from "schemas/subscription.schema";
+import { subscriptionCreateSchema } from "schemas/subscriptions/subscriptionCreate.schema";
+import { subscriptionUpdateSchema } from "schemas/subscriptions/subscriptionUpdate.schema";
 
 const router = Router();
 
-router.get('/', getPermissions, findSubscriptions);
+router.get("/", getPermissions, findSubscriptions);
 
-router.get('/:id', getPermissions, findSubscriptionById);
+router.get("/:id", getPermissions, findSubscriptionById);
 
-router.post('/', validate(subscriptionSchema), getPermissions, checkRoles, createSubscription);
+router.post("/", validate(subscriptionCreateSchema), getPermissions, checkRoles, createSubscription);
 
-router.put('/:id', getPermissions, updateSubscription);
+router.put("/:id", validate(subscriptionUpdateSchema), getPermissions, updateSubscription);
 
-router.delete('/:id', getPermissions, deleteSubscription);
+router.delete("/:id", getPermissions, deleteSubscription);
 
 export default router;

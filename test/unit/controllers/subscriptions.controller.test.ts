@@ -88,7 +88,7 @@ describe("SubscriptionController", () => {
                 title: "Premium",
                 description: "Descripción premium",
                 price: 99.99,
-                durationType: ["monthly"]
+                durationType: new mongoose.Types.ObjectId()
             };
             mockRequest = {
                 body: mockSubscription
