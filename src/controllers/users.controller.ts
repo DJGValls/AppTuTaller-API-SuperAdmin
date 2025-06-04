@@ -2,24 +2,26 @@ import { UserRepository } from "repositories/userRepositories";
 import { UserService } from "services/userService";
 import { Request, Response } from "express";
 import { InterfaceUserRepository, User } from "types/UserTypes";
-import { ResponseHandler } from "utils/ResponseHandler";
+import { Pagination, ResponseHandler } from "utils/ResponseHandler";
 import mongoose from "mongoose";
 import { sortsBuilder } from "utils/queryBuilders/CustomSortsBuilder";
 import { populateBuilder } from "utils/queryBuilders/CustomPopulateBuilder";
 import { filterBuilder } from "utils/queryBuilders/CustomFilterBuilder";
+import { Params } from "types/RepositoryTypes";
+import { paginationBuilder } from "utils/queryBuilders/CustomPaginationBuilder";
 
 const userRepository: InterfaceUserRepository = new UserRepository();
 const userService = new UserService(userRepository);
 
 export const findUsers = async (req: Request, res: Response) => {
     try {
-        const params = {
+        const params: Params = {
             sort: sortsBuilder(req.query.sort),
             populate: populateBuilder(req.query.populate),
             filter: filterBuilder(req.query.filter),
-            page: req.query.page,
-            perPage: req.query.perPage,
-            all: req.query.all,
+            page: req.query.page?.toString(),
+            perPage: req.query.perPage?.toString(),
+            all: req.query.all?.toString(),
         };
         const users = await userService.findUsers(params.filter, params);
         const total = await userService.countUsers(params.filter);
@@ -27,15 +29,15 @@ export const findUsers = async (req: Request, res: Response) => {
             res.status(404).json(ResponseHandler.notFound("Usuarios no encontrados", 404));
             return;
         }
-        const pagination = {
-            pagination: {
-                total,
-                page: Number(params.page) || 1,
-                perPage: Number(params.perPage) || 10,
-                pages: Math.ceil(total / (Number(params.perPage) || 10)),
-            },
-        };
-        res.status(200).json(ResponseHandler.paginationSuccess(users, pagination, "Usuarios encontrados exitosamente"));
+        if (!params.all || params.all === 'false' || params.all === '0') {
+            const pagination = paginationBuilder(params, total)
+            res.status(200).json(ResponseHandler.paginationSuccess(users, pagination, "Usuarios encontrados exitosamente"));
+            return
+        } else {
+            res.status(200).json(ResponseHandler.success(users, "Usuarios encontrados exitosamente"));
+            return;
+        }
+       
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
