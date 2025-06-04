@@ -21,8 +21,8 @@ const subscriptionSchema = new mongoose.Schema<Subscription>(
             type: Number,
             required: true,
         },
-        durationType: [{
-            ref: "SubscriptionTypes",
+        subscriptionDuration: [{
+            ref: "SubscriptionDuration",
             type: Schema.Types.ObjectId,
             required: true,
         }],

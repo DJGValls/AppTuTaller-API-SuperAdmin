@@ -1,14 +1,14 @@
-import { SubscriptionModel } from "models/subscription.model";
-import { Params, Query } from "types/RepositoryTypes";
-import { InterfaceSubscriptionRepository, Subscription } from "../types/SubscriptionsTypes";
 
-export class SubscriptionRepository implements InterfaceSubscriptionRepository {
-    async create(data: Subscription): Promise<Subscription> {
-        const newSubscription = new SubscriptionModel(data);
-        return await newSubscription.save();
+import { SubscriptionDurationModel } from "models/subscriptionDuration.model";
+import { Params, Query } from "types/RepositoryTypes";
+import { InterfaceSubscriptionDurationRepository, SubscriptionDuration } from "types/SubscriptionsDurationTypes";
+export class SubscriptionDurationRepository implements InterfaceSubscriptionDurationRepository {
+    async create(data: SubscriptionDuration): Promise<SubscriptionDuration> {
+        const newSubscriptionDuration = new SubscriptionDurationModel(data);
+        return await newSubscriptionDuration.save();
     }
 
-    async find(query?: Query, params?: Params): Promise<Subscription[]> {
+    async find(query?: Query, params?: Params): Promise<SubscriptionDuration[]> {
         const sortQuery = params?.sort ? params.sort : {};
         const populateQuery = params?.populate ? params.populate : [];
         const page = params?.page ? Number(params.page) : 1;
@@ -27,17 +27,17 @@ export class SubscriptionRepository implements InterfaceSubscriptionRepository {
                 }
             });
         }
-        const subscriptions = await SubscriptionModel.find(mongoQuery)
+        const subscriptionDurations = await SubscriptionDurationModel.find(mongoQuery)
             .sort(sortQuery)
             .populate(populateQuery)
             .skip(skip)
             .limit(perPage)
             .exec();
         
-        return subscriptions;
+        return subscriptionDurations;
     }
 
-    async countSubscriptions(query?: Query): Promise<number> {
+    async countSubscriptionDurations(query?: Query): Promise<number> {
         let mongoQuery: any = {};
         if (query) {
             Object.entries(query).forEach(([key, value]) => {
@@ -50,24 +50,24 @@ export class SubscriptionRepository implements InterfaceSubscriptionRepository {
                 }
             });
         }
-        const total = await SubscriptionModel.countDocuments(mongoQuery).exec();
+        const total = await SubscriptionDurationModel.countDocuments(mongoQuery).exec();
         return total;
     }
 
-    async findById(id: string): Promise<Subscription | null> {
-        return await SubscriptionModel.findById(id).populate("subscriptionDuration").exec();
+    async findById(id: string): Promise<SubscriptionDuration | null> {
+        return await SubscriptionDurationModel.findById(id).populate("").exec();
     }
 
-    async findOne(query: any): Promise<Subscription | null> {
-        return await SubscriptionModel.findOne(query).populate("subscriptionDuration").exec();
+    async findOne(query: any): Promise<SubscriptionDuration | null> {
+        return await SubscriptionDurationModel.findOne(query).populate("").exec();
     }
 
-    async update(id: string, data: Subscription): Promise<Subscription | null> {
-        return await SubscriptionModel.findByIdAndUpdate(id, data, { new: true }).populate("subscriptionDuration").exec();
+    async update(id: string, data: SubscriptionDuration): Promise<SubscriptionDuration | null> {
+        return await SubscriptionDurationModel.findByIdAndUpdate(id, data, { new: true }).populate("").exec();
     }
 
     async delete(id: string): Promise<boolean> {
-        const deleted = await SubscriptionModel.findByIdAndDelete(id).exec();
+        const deleted = await SubscriptionDurationModel.findByIdAndDelete(id).exec();
         return deleted !== null;
     }
 }

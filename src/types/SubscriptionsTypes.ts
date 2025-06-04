@@ -6,7 +6,7 @@ export interface Subscription extends Document{
     maxEmployees: number;
     description: string;
     price: number;
-    durationType: string[];
+    subscriptionDuration: string[];
     createdAt: Date;
     updatedAt: Date;
 }

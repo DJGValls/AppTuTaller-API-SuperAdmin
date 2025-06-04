@@ -28,8 +28,8 @@ export class SubscriptionService implements InterfaceSubscriptionService {
         return await this.subscriptionRepository.update(id, subscription);
     }
     async deleteSubscription(id: string): Promise<boolean> {
-        const Subscription = await this.subscriptionRepository.delete(id);
-        return Subscription ?? false;
+        const subscription = await this.subscriptionRepository.delete(id);
+        return subscription ?? false;
     }
 
 
