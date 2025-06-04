@@ -1,7 +1,5 @@
-import { UserRepository } from "repositories/userRepositories";
-import { UserService } from "services/userService";
+
 import { Request, Response } from "express";
-import { InterfaceUserRepository, User } from "types/UserTypes";
 import { ResponseHandler } from "utils/ResponseHandler";
 import mongoose from "mongoose";
 import { sortsBuilder } from "utils/queryBuilders/CustomSortsBuilder";
@@ -9,11 +7,14 @@ import { populateBuilder } from "utils/queryBuilders/CustomPopulateBuilder";
 import { filterBuilder } from "utils/queryBuilders/CustomFilterBuilder";
 import { Params } from "types/RepositoryTypes";
 import { paginationBuilder } from "utils/queryBuilders/CustomPaginationBuilder";
+import { SubscriptionRepository } from "repositories/subscriptionRepositories";
+import { SubscriptionService } from "services/subscriptionService";
+import { InterfaceSubscriptionRepository, Subscription } from "../types/SubscriptionTypes";
 
-const userRepository: InterfaceUserRepository = new UserRepository();
-const userService = new UserService(userRepository);
+const subscriptionRepository: InterfaceSubscriptionRepository = new SubscriptionRepository();
+const subscriptionService = new SubscriptionService(subscriptionRepository);
 
-export const findUsers = async (req: Request, res: Response) => {
+export const findSubscriptions = async (req: Request, res: Response) => {
     try {
         const params: Params = {
             sort: sortsBuilder(req.query.sort),
@@ -23,24 +24,24 @@ export const findUsers = async (req: Request, res: Response) => {
             perPage: req.query.perPage?.toString(),
             all: req.query.all?.toString(),
         };
-        const users = await userService.findUsers(params.filter, params);
-        const total = await userService.countUsers(params.filter);
-        if (users.length === 0) {
-            res.status(404).json(ResponseHandler.notFound("Usuarios no encontrados", 404));
+        const subscriptions = await subscriptionService.findSubscriptions(params.filter, params);
+        const total = await subscriptionService.countSubscriptions(params.filter);
+        if (subscriptions.length === 0) {
+            res.status(404).json(ResponseHandler.notFound("Suscripciones no encontradas", 404));
             return;
         }
         if (!params.all || params.all === 'false' || params.all === '0') {
             const pagination = paginationBuilder(params, total)
-            res.status(200).json(ResponseHandler.paginationSuccess(users, pagination, "Usuarios encontrados exitosamente"));
+            res.status(200).json(ResponseHandler.paginationSuccess(subscriptions, pagination, "Suscripciones encontradas exitosamente"));
             return
         } else {
-            res.status(200).json(ResponseHandler.success(users, "Usuarios encontrados exitosamente"));
+            res.status(200).json(ResponseHandler.success(subscriptions, "Suscripciones encontradas exitosamente"));
             return;
         }
     } catch (error: unknown) {
         if (error instanceof Error) {
             // Error conocido con mensaje
-            console.error("Error al buscar usuario:", error.message);
+            console.error("Error al buscar subscription:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -56,19 +57,19 @@ export const findUsers = async (req: Request, res: Response) => {
     }
 };
 
-export const findUserById = async (req: Request, res: Response) => {
+export const findSubscriptionById = async (req: Request, res: Response) => {
     try {
-        const user = await userService.findUserById(req.params.id);
-        if (!user) {
-            res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
+        const subscription = await subscriptionService.findSubscriptionById(req.params.id);
+        if (!subscription) {
+            res.status(404).json(ResponseHandler.notFound("Suscripcion no encontrada", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(user, "Usuario encontrado exitosamente"));
+        res.status(200).json(ResponseHandler.success(subscription, "Suscripcion encontrada exitosamente"));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
             // Error conocido con mensaje
-            console.error("Error al buscar usuario:", error.message);
+            console.error("Error al buscar subscription:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -84,15 +85,15 @@ export const findUserById = async (req: Request, res: Response) => {
     }
 };
 
-export const createUser = async (req: Request, res: Response) => {
+export const createSubscription = async (req: Request, res: Response) => {
     try {
-        const newUser: User = req.body;
-        const result = await userService.createUser(newUser);
-        res.status(201).json(ResponseHandler.success(result, "Usuario creado exitosamente", 201));
+        const newSubscription: Subscription = req.body;
+        const result = await subscriptionService.createSubscription(newSubscription);
+        res.status(201).json(ResponseHandler.success(result, "Suscripcion creado exitosamente", 201));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
-            console.error("Error al crear usuario:", error.message);
+            console.error("Error al crear Suscripcion:", error.message);
             res.status(400).json(ResponseHandler.badRequest(error.message, 400));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -106,18 +107,18 @@ export const createUser = async (req: Request, res: Response) => {
     }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateSubscription = async (req: Request, res: Response) => {
     try {
-        const user = await userService.updateUser(req.params.id, req.body);
-        if (!user) {
-            res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
+        const subscription = await subscriptionService.updateSubscription(req.params.id, req.body);
+        if (!subscription) {
+            res.status(404).json(ResponseHandler.notFound("Suscripcion no encontrado", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(user, "Usuario actualizado exitosamente"));
+        res.status(200).json(ResponseHandler.success(subscription, "Suscripcion actualizado exitosamente"));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
-            console.error("Error al actualizar usuario:", error.message);
+            console.error("Error al actualizar Suscripcion:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -131,18 +132,18 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteSubscription = async (req: Request, res: Response) => {
     try {
-        const user = await userService.deleteUser(req.params.id);
-        if (!user) {
-            res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
+        const subscription = await subscriptionService.deleteSubscription(req.params.id);
+        if (!subscription) {
+            res.status(404).json(ResponseHandler.notFound("Suscripcion no encontrado", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(user, "Usuario eliminado exitosamente"));
+        res.status(200).json(ResponseHandler.success(subscription, "Suscripcion eliminado exitosamente"));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
-            console.error("Error al eliminar usuario:", error.message);
+            console.error("Error al eliminar Suscripcion:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {

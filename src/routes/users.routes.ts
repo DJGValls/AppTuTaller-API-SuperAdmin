@@ -13,7 +13,7 @@ router.get('/:id', getPermissions, findUserById);
 
 router.post('/', validate(userSchema), getPermissions, checkRoles, createUser);
 
-router.put('/:id', getPermissions, getPermissions, updateUser);
+router.put('/:id', getPermissions, updateUser);
 
 router.delete('/:id', getPermissions, deleteUser);
 

@@ -3,6 +3,7 @@ import { Router } from 'express';
 import usersRoutes from "./users.routes.ts";
 import rolesRoutes from "./roles.routes.ts";
 import authRoutes from "./auth.routes.ts";
+import subscriptionsRoutes from "./subscriptions.routes.ts";
 import { verifyToken } from 'middlewares/auth.middleware.ts';
 
 const router = Router();
@@ -17,5 +18,7 @@ router.use("/auth", authRoutes);
 router.use("/users", verifyToken, usersRoutes);
 // Roles routes
 router.use("/roles", verifyToken, rolesRoutes);
+// Subscriptions routes
+router.use("/subscriptions", verifyToken, subscriptionsRoutes);
 
 export default router;
