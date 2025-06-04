@@ -1,6 +1,6 @@
 import { SubscriptionModel } from "models/subscription.model";
 import { Params, Query } from "types/RepositoryTypes";
-import { InterfaceSubscriptionRepository, Subscription } from "../types/SubscriptionTypes";
+import { InterfaceSubscriptionRepository, Subscription } from "../types/SubscriptionsTypes";
 
 export class SubscriptionRepository implements InterfaceSubscriptionRepository {
     async create(data: Subscription): Promise<Subscription> {

@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { Subscription } from "../types/SubscriptionTypes";
+import { Subscription } from "../types/SubscriptionsTypes";
 
 
 const subscriptionSchema = new mongoose.Schema<Subscription>(

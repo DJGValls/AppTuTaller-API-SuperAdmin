@@ -9,7 +9,7 @@ import { Params } from "types/RepositoryTypes";
 import { paginationBuilder } from "utils/queryBuilders/CustomPaginationBuilder";
 import { SubscriptionRepository } from "repositories/subscriptionRepositories";
 import { SubscriptionService } from "services/subscriptionService";
-import { InterfaceSubscriptionRepository, Subscription } from "../types/SubscriptionTypes";
+import { InterfaceSubscriptionRepository, Subscription } from "../types/SubscriptionsTypes";
 
 const subscriptionRepository: InterfaceSubscriptionRepository = new SubscriptionRepository();
 const subscriptionService = new SubscriptionService(subscriptionRepository);

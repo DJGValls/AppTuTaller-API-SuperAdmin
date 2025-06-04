@@ -1,5 +1,5 @@
 import { Params, Query } from "types/RepositoryTypes";
-import { InterfaceSubscriptionRepository, InterfaceSubscriptionService, Subscription } from "types/SubscriptionTypes";
+import { InterfaceSubscriptionRepository, InterfaceSubscriptionService, Subscription } from "types/SubscriptionsTypes";
 
 export class SubscriptionService implements InterfaceSubscriptionService {
     private subscriptionRepository: InterfaceSubscriptionRepository;
