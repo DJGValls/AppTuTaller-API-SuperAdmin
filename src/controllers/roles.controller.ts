@@ -39,9 +39,9 @@ export const findRolesById = async (req: Request, res: Response) => {
         }
         res.status(200).json(ResponseHandler.success(role, "Rol encontrado exitosamente"));
         return;
-    } catch (error) {
+   } catch (error) {
         console.error("Error al buscar rol:", error);
-        if (error instanceof mongoose.Error) {
+        if (error instanceof mongoose.Error || error === 'CastError') {
             res.status(400).json(ResponseHandler.handleMongooseError(error));
             return;
         }
