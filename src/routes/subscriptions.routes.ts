@@ -11,8 +11,11 @@ import { checkRoles } from "middlewares/roles.middleware";
 import { validate } from "middlewares/validate.middleware";
 import { subscriptionCreateSchema } from "schemas/subscriptions/subscriptionCreate.schema";
 import { subscriptionUpdateSchema } from "schemas/subscriptions/subscriptionUpdate.schema";
+import subscriptionDurationsRoutes from "./subscriptionDurations.routes.ts";
 
-const router = Router();
+const router = Router(); 
+
+router.use("/durations", getPermissions, subscriptionDurationsRoutes);
 
 router.get("/", getPermissions, findSubscriptions);
 
@@ -23,5 +26,6 @@ router.post("/", validate(subscriptionCreateSchema), getPermissions, checkRoles,
 router.put("/:id", validate(subscriptionUpdateSchema), getPermissions, updateSubscription);
 
 router.delete("/:id", getPermissions, deleteSubscription);
+
 
 export default router;

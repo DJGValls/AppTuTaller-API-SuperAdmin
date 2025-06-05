@@ -3,8 +3,6 @@ import { Params, Query, Repository } from "./RepositoryTypes";
 
 export interface SubscriptionDuration extends Document{
     title: string;
-    createdAt: Date;
-    updatedAt: Date;
     expirationDate: Date;
 }
 export interface InterfaceSubscriptionDurationRepository extends Repository<SubscriptionDuration>{

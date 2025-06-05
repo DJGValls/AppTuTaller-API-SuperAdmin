@@ -21,11 +21,11 @@ const subscriptionSchema = new mongoose.Schema<Subscription>(
             type: Number,
             required: true,
         },
-        subscriptionDuration: [{
-            ref: "SubscriptionDuration",
+       subscriptionDuration: {
             type: Schema.Types.ObjectId,
-            required: true,
-        }],
+            ref: "SubscriptionDuration",
+            required: true
+        }
     },
     {
         timestamps: true,

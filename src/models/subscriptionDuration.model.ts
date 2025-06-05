@@ -1,5 +1,5 @@
-import mongoose, { Schema } from "mongoose";
-import { Subscription } from "../types/SubscriptionsTypes";
+
+import mongoose from "mongoose";
 import { SubscriptionDuration } from "types/SubscriptionsDurationTypes";
 
 const subscriptionDurationSchema = new mongoose.Schema<SubscriptionDuration>(
@@ -9,18 +9,10 @@ const subscriptionDurationSchema = new mongoose.Schema<SubscriptionDuration>(
             required: true,
             unique: true,
         },
-        createdAt: {
-            type: Date,
-            requered: true,
-        },
-        updatedAt: {
-            type: Date,
-            requered: true,
-        },
         expirationDate: {
             type: Date,
-            requered: true,
-        },
+            required: true,
+        }
     },
     {
         timestamps: true,

@@ -5,6 +5,7 @@ import rolesRoutes from "./roles.routes.ts";
 import authRoutes from "./auth.routes.ts";
 import subscriptionsRoutes from "./subscriptions.routes.ts";
 import { verifyToken } from 'middlewares/auth.middleware.ts';
+import subscriptionDurationsRoutes from "./subscriptionDurations.routes.ts";
 
 const router = Router();
 

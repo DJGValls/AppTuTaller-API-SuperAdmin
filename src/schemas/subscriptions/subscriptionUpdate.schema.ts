@@ -6,7 +6,8 @@ export const subscriptionUpdateSchema = z.object({
         })
         .min(3, {
             message: "Title must be at least 3 characters long",
-        }).max(20, {
+        })
+        .max(20, {
             message: "Title must be at most 20 characters long",
         }),
     description: z
@@ -32,5 +33,12 @@ export const subscriptionUpdateSchema = z.object({
         })
         .min(1, {
             message: "Max employees must be at least 1",
+        }),
+    subscriptionDuration: z
+        .string({
+            required_error: "Subscription duration is required",
+        })
+        .min(1, {
+            message: "Subscription duration ID is required",
         }),
 });

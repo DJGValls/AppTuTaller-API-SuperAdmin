@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 import { Params, Query, Repository } from "./RepositoryTypes";
 
 export interface Subscription extends Document{
@@ -6,7 +6,7 @@ export interface Subscription extends Document{
     maxEmployees: number;
     description: string;
     price: number;
-    subscriptionDuration: string[];
+    subscriptionDuration: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }

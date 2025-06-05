@@ -10,21 +10,12 @@ export const subscriptionDurationCreateSchema = z.object({
         .max(20, {
             message: "Title must be at most 20 characters long",
         }),
-    description: z
-        .string({
-            required_error: "Description is required",
-        })
-        .min(3, {
-            message: "Description must be at least 3 characters long",
-        })
-        .max(200, {
-            message: "Description must be at most 200 characters long",
-        }),
     expirationDate: z
-        .date({
+        .string({
             required_error: "Expiration date is required",
         })
-        .min(new Date(), {
+        .transform((str) => new Date(str))
+        .refine((date) => date > new Date(), {
             message: "Expiration date must be in the future",
         }),
 });
