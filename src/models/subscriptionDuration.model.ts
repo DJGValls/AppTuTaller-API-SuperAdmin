@@ -9,6 +9,20 @@ const subscriptionDurationSchema = new mongoose.Schema<SubscriptionDuration>(
             required: true,
             unique: true,
         },
+        durationInDays: {
+            type: Number,
+            required: true,
+            min: 1
+        },
+        isRecurring: {
+            type: Boolean,
+            default: false
+        },
+        billingCycle: {
+            type: String,
+            enum: ["monthly", "quarterly", "yearly"],
+            required: true
+        },
         expirationDate: {
             type: Date,
             required: true,

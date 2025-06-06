@@ -40,18 +40,6 @@ const userSchema = new mongoose.Schema<User>(
                 type: Schema.Types.ObjectId,
             },
         ],
-        // modifyBy: {
-        //     type: String,
-        // },
-        // createdBy: {
-        //     type: String,
-        // },
-        // deletedBy: {
-        //     type: String,
-        // },
-        // deletedAt: {
-        //     type: Date,
-        // },
     },
     {
         timestamps: true,

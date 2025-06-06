@@ -1,8 +1,11 @@
 import { Document } from "mongoose";
 import { Params, Query, Repository } from "./RepositoryTypes";
 
-export interface SubscriptionDuration extends Document{
+export interface SubscriptionDuration extends Document {
     title: string;
+    durationInDays: number;
+    isRecurring: boolean;
+    billingCycle: "monthly" | "quarterly" | "yearly";
     expirationDate: Date;
 }
 export interface InterfaceSubscriptionDurationRepository extends Repository<SubscriptionDuration>{

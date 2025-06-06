@@ -10,6 +10,22 @@ export const subscriptionDurationCreateSchema = z.object({
         .max(20, {
             message: "Title must be at most 20 characters long",
         }),
+    durationInDays: z
+        .number({
+            required_error: "Duration in days is required",
+        })
+        .min(1, {
+            message: "Duration must be at least 1 day",
+        }),
+    isRecurring: z
+        .boolean({
+            required_error: "Recurring status is required",
+        })
+        .default(false),
+    billingCycle: z
+        .enum(["monthly", "quarterly", "yearly"], {
+            required_error: "Billing cycle is required",
+        }),
     expirationDate: z
         .string({
             required_error: "Expiration date is required",
