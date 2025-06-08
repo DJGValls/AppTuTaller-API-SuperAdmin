@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 import { Params, Query, Repository } from "./RepositoryTypes";
 
 export interface User extends Document{
@@ -14,7 +14,7 @@ export interface User extends Document{
     modifyBy?: string;
     createdBy?: string;
     deletedBy?: string;
-    roles?: string[];
+    roles?: mongoose.Types.ObjectId[];
     permissions?: string[];
     comparePassword(password: string): Promise<boolean>;
 }

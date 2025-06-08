@@ -17,5 +17,5 @@ export interface Repository<T = unknown> {
     findById(id: string): Promise<T | null>;
     create(data: T): Promise<T>;
     update(id: string, data: Partial<T>): Promise<T | null>;
-    delete(id: string): Promise<boolean>;
+    delete(id: string, userId?: string): Promise<boolean>;
 }

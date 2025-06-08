@@ -20,6 +20,8 @@ export const permissions: Permission[] = [
         modulePermissions: {
             users: ["users_read"],
             roles: ["roles_read"],
+            subscriptions: ["subscriptions_read"],
+            subscriptionDurations: ["subscription_durations_read"],
         },
     },
     {
@@ -29,6 +31,8 @@ export const permissions: Permission[] = [
         modulePermissions: {
             users: ["users_create"],
             roles: ["roles_create"],
+            subscriptions: ["subscriptions_create"],
+            subscriptionDurations: ["subscription_durations_create"],
         },
     },
     {
@@ -38,6 +42,8 @@ export const permissions: Permission[] = [
         modulePermissions: {
             users: ["users_update"],
             roles: ["roles_update"],
+            subscriptions: ["subscriptions_update"],
+            subscriptionDurations: ["subscription_durations_update"],
         },
     },
     {
@@ -47,6 +53,8 @@ export const permissions: Permission[] = [
         modulePermissions: {
             users: ["users_delete"],
             roles: ["roles_delete"],
+            subscriptions: ["subscriptions_delete"],
+            subscriptionDurations: ["subscription_durations_delete"],
         },
     },
 ];
