@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema<User>(
                 type: Schema.Types.ObjectId,
             },
         ],
+        deletedAt: Date,
+        deletedBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        }
     },
     {
         timestamps: true,

@@ -25,6 +25,11 @@ const subscriptionSchema = new mongoose.Schema<Subscription>(
             type: Schema.Types.ObjectId,
             ref: "SubscriptionDuration",
             required: true
+        },
+        deletedAt: Date,
+        deletedBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
         }
     },
     {

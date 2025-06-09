@@ -27,11 +27,11 @@ export class SubscriptionService implements InterfaceSubscriptionService {
     async updateSubscription(id: string, subscription: Partial<Subscription>): Promise<Subscription | null> {
         return await this.subscriptionRepository.update(id, subscription);
     }
-    async deleteSubscription(id: string): Promise<boolean> {
-        const subscription = await this.subscriptionRepository.delete(id);
+    async deleteSubscription(id: string, userId?: string): Promise<boolean> {
+        const subscription = await this.subscriptionRepository.delete(id, userId);
         return subscription ?? false;
     }
-
-
-
+    async restoreSubscription(id: string): Promise<Subscription | null> {
+        return await this.subscriptionRepository.restore(id);
+    }
 }

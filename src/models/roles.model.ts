@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import { Roles } from "types/RolesTypes"
+import mongoose, { Schema } from "mongoose";
+import { Roles } from "types/RolesTypes";
 const rolesSchema = new mongoose.Schema<Roles>(
     {
         name: {
@@ -10,11 +10,16 @@ const rolesSchema = new mongoose.Schema<Roles>(
         permissions: {
             type: [String],
             default: [],
-        }
+        },
+        deletedAt: Date,
+        deletedBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
     },
     {
         timestamps: true,
-        versionKey: false
+        versionKey: false,
     }
 );
 export const RolesModel = mongoose.model<Roles>("Roles", rolesSchema);

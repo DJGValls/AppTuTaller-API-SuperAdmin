@@ -27,9 +27,12 @@ export class SubscriptionDurationService implements InterfaceSubscriptionDuratio
     async updateSubscriptionDuration(id: string, subscriptionDuration: Partial<SubscriptionDuration>): Promise<SubscriptionDuration | null> {
         return await this.subscriptionDurationRepository.update(id, subscriptionDuration);
     }
-    async deleteSubscriptionDuration(id: string): Promise<boolean> {
-        const subscriptionDuration = await this.subscriptionDurationRepository.delete(id);
+    async deleteSubscriptionDuration(id: string, userId?: string): Promise<boolean> {
+        const subscriptionDuration = await this.subscriptionDurationRepository.delete(id, userId);
         return subscriptionDuration ?? false;
+    }
+    async restoreSubscriptionDuration(id: string): Promise<SubscriptionDuration | null> {
+        return await this.subscriptionDurationRepository.restore(id);
     }
 
 

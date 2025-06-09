@@ -134,7 +134,7 @@ export const updateSubscription = async (req: Request, res: Response) => {
 
 export const deleteSubscription = async (req: Request, res: Response) => {
     try {
-        const subscription = await subscriptionService.deleteSubscription(req.params.id);
+        const subscription = await subscriptionService.deleteSubscription(req.params.id, req.currentUser?.id);
         if (!subscription) {
             res.status(404).json(ResponseHandler.notFound("Suscripcion no encontrado", 404));
             return;
@@ -144,6 +144,31 @@ export const deleteSubscription = async (req: Request, res: Response) => {
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error("Error al eliminar Suscripcion:", error.message);
+            res.status(500).json(ResponseHandler.error(error.message));
+            return;
+        } else if (error instanceof mongoose.Error) {
+            res.status(500).json(ResponseHandler.handleMongooseError(error));
+            return;
+        } else {
+            console.error("Error desconocido:", error);
+            res.status(500).json(ResponseHandler.internalServerError(500));
+            return;
+        }
+    }
+};
+
+export const restoreSubscription = async (req: Request, res: Response) => {
+    try {
+        const subscription = await subscriptionService.restoreSubscription(req.params.id);
+        if (!subscription) {
+            res.status(404).json(ResponseHandler.notFound("suscripcion no encontrado", 404));
+            return;
+        }
+        res.status(200).json(ResponseHandler.success(subscription, "suscripcion restaurado exitosamente"));
+        return;
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error al restaurar suscripcion:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {

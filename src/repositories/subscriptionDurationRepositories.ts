@@ -1,4 +1,3 @@
-
 import { SubscriptionDurationModel } from "models/subscriptionDuration.model";
 import { Params, Query } from "types/RepositoryTypes";
 import { InterfaceSubscriptionDurationRepository, SubscriptionDuration } from "types/SubscriptionsDurationTypes";
@@ -14,13 +13,13 @@ export class SubscriptionDurationRepository implements InterfaceSubscriptionDura
         const page = params?.page ? Number(params.page) : 1;
         const perPage = params?.perPage ? Number(params.perPage) : 10;
         const skip = (page - 1) * perPage;
-        let mongoQuery: any = {};
+        let mongoQuery: any = { deletedAt: null }; // Excluir registros eliminados
         if (query) {
             Object.entries(query).forEach(([key, value]) => {
                 if (value) {
-                    if (typeof value === 'string') {
+                    if (typeof value === "string") {
                         // Búsqueda case-insensitive con regex para strings
-                        mongoQuery[key] = { $regex: value, $options: 'i' };
+                        mongoQuery[key] = { $regex: value, $options: "i" };
                     } else {
                         mongoQuery[key] = value;
                     }
@@ -33,17 +32,17 @@ export class SubscriptionDurationRepository implements InterfaceSubscriptionDura
             .skip(skip)
             .limit(perPage)
             .exec();
-        
+
         return subscriptionDurations;
     }
 
     async countSubscriptionDurations(query?: Query): Promise<number> {
-        let mongoQuery: any = {};
+        let mongoQuery: any = { deletedAt: null }; // Excluir registros eliminados
         if (query) {
             Object.entries(query).forEach(([key, value]) => {
                 if (value) {
-                    if (typeof value === 'string') {
-                        mongoQuery[key] = { $regex: value, $options: 'i' };
+                    if (typeof value === "string") {
+                        mongoQuery[key] = { $regex: value, $options: "i" };
                     } else {
                         mongoQuery[key] = value;
                     }
@@ -55,19 +54,45 @@ export class SubscriptionDurationRepository implements InterfaceSubscriptionDura
     }
 
     async findById(id: string): Promise<SubscriptionDuration | null> {
-        return await SubscriptionDurationModel.findById(id).populate("").exec();
+        return await SubscriptionDurationModel.findOne({ _id: id, deletedAt: null }).populate("").exec();
     }
 
     async findOne(query: any): Promise<SubscriptionDuration | null> {
-        return await SubscriptionDurationModel.findOne(query).populate("").exec();
+        return await SubscriptionDurationModel.findOne({ ...query, deletedAt: null })
+            .populate("")
+            .exec();
     }
 
     async update(id: string, data: SubscriptionDuration): Promise<SubscriptionDuration | null> {
-        return await SubscriptionDurationModel.findByIdAndUpdate(id, data, { new: true }).populate("").exec();
+        return await SubscriptionDurationModel.findOneAndUpdate({ _id: id, deletedAt: null }, data, { new: true })
+            .populate("")
+            .exec();
     }
 
-    async delete(id: string): Promise<boolean> {
-        const deleted = await SubscriptionDurationModel.findByIdAndDelete(id).exec();
-        return deleted !== null;
+    async delete(id: string, userId: string): Promise<boolean> {
+        const result = await SubscriptionDurationModel.findOneAndUpdate(
+            { _id: id, deletedAt: null },
+            {
+                deletedAt: new Date(),
+                deletedBy: userId,
+            },
+            { new: true }
+        ).exec();
+        return result !== null;
+    }
+
+    async restore(id: string): Promise<SubscriptionDuration | null> {
+        return await SubscriptionDurationModel.findOneAndUpdate(
+            { _id: id, deletedAt: { $ne: null } },
+            {
+                $unset: {
+                    deletedAt: "",
+                    deletedBy: "",
+                },
+            },
+            { new: true }
+        )
+            .populate("")
+            .exec();
     }
 }

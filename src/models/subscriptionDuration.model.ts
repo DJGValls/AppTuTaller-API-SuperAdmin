@@ -1,5 +1,4 @@
-
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { SubscriptionDuration } from "types/SubscriptionsDurationTypes";
 
 const subscriptionDurationSchema = new mongoose.Schema<SubscriptionDuration>(
@@ -12,21 +11,26 @@ const subscriptionDurationSchema = new mongoose.Schema<SubscriptionDuration>(
         durationInDays: {
             type: Number,
             required: true,
-            min: 1
+            min: 1,
         },
         isRecurring: {
             type: Boolean,
-            default: false
+            default: false,
         },
         billingCycle: {
             type: String,
             enum: ["monthly", "quarterly", "yearly"],
-            required: true
+            required: true,
         },
         expirationDate: {
             type: Date,
             required: true,
-        }
+        },
+        deletedAt: Date,
+        deletedBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
     },
     {
         timestamps: true,
@@ -34,4 +38,7 @@ const subscriptionDurationSchema = new mongoose.Schema<SubscriptionDuration>(
     }
 );
 
-export const SubscriptionDurationModel = mongoose.model<SubscriptionDuration>("SubscriptionDuration", subscriptionDurationSchema);
+export const SubscriptionDurationModel = mongoose.model<SubscriptionDuration>(
+    "SubscriptionDuration",
+    subscriptionDurationSchema
+);

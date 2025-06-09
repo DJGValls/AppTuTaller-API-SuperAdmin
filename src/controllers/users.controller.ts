@@ -133,7 +133,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
     try {
-        const user = await userService.deleteUser(req.params.id);
+        const user = await userService.deleteUser(req.params.id, req.currentUser?.id);
         if (!user) {
             res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
             return;
@@ -143,6 +143,31 @@ export const deleteUser = async (req: Request, res: Response) => {
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error("Error al eliminar usuario:", error.message);
+            res.status(500).json(ResponseHandler.error(error.message));
+            return;
+        } else if (error instanceof mongoose.Error) {
+            res.status(500).json(ResponseHandler.handleMongooseError(error));
+            return;
+        } else {
+            console.error("Error desconocido:", error);
+            res.status(500).json(ResponseHandler.internalServerError(500));
+            return;
+        }
+    }
+};
+
+export const restoreUser = async (req: Request, res: Response) => {
+    try {
+        const user = await userService.restoreUser(req.params.id);
+        if (!user) {
+            res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
+            return;
+        }
+        res.status(200).json(ResponseHandler.success(user, "Usuario restaurado exitosamente"));
+        return;
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error al restaurar usuario:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {

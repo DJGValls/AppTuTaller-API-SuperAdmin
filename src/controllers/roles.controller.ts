@@ -5,28 +5,53 @@ import { Request, Response } from "express";
 import { ResponseHandler } from "utils/ResponseHandler";
 import mongoose from "mongoose";
 import { sortsBuilder } from "utils/queryBuilders/CustomSortsBuilder";
+import { Params } from "types/RepositoryTypes";
+import { populateBuilder } from "utils/queryBuilders/CustomPopulateBuilder";
+import { filterBuilder } from "utils/queryBuilders/CustomFilterBuilder";
+import { paginationBuilder } from "utils/queryBuilders/CustomPaginationBuilder";
 
 const rolesRepository: InterfaceRolesRepository = new RolesRepository();
 const rolesService = new RolesService(rolesRepository);
 
 export const findRoles = async (req: Request, res: Response) => {
     try {
-        const sortQuery = sortsBuilder(req.query.sort);
-        const roles = await rolesService.findRoles({}, sortQuery);
+        const params: Params = {
+            sort: sortsBuilder(req.query.sort),
+            populate: populateBuilder(req.query.populate),
+            filter: filterBuilder(req.query.filter),
+            page: req.query.page?.toString(),
+            perPage: req.query.perPage?.toString(),
+            all: req.query.all?.toString(),
+        };
+        const roles = await rolesService.findRoles(params.filter, params);
+        const total = await rolesService.countRoles(params.filter);
         if (roles.length === 0) {
-            res.status(404).json(ResponseHandler.notFound("No se encontraron roles", 404));
+            res.status(404).json(ResponseHandler.notFound("Roles no encontrados", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(roles, "Roles encontrados exitosamente"));
-        return;
-    } catch (error) {
-        console.error("Error al buscar roles:", error);
-        if (error instanceof mongoose.Error) {
-            res.status(400).json(ResponseHandler.handleMongooseError(error));
+        if (!params.all || params.all === "false" || params.all === "0") {
+            const pagination = paginationBuilder(params, total);
+            res.status(200).json(
+                ResponseHandler.paginationSuccess(roles, pagination, "Roles encontrados exitosamente")
+            );
+            return;
+        } else {
+            res.status(200).json(ResponseHandler.success(roles, "Roles encontrados exitosamente"));
             return;
         }
-        res.status(500).json(ResponseHandler.error("Error interno del servidor"));
-        return;
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error al buscar Roles:", error.message);
+            res.status(500).json(ResponseHandler.error(error.message));
+            return;
+        } else if (error instanceof mongoose.Error) {
+            res.status(500).json(ResponseHandler.handleMongooseError(error));
+            return;
+        } else {
+            console.error("Error desconocido:", error);
+            res.status(500).json(ResponseHandler.internalServerError(500));
+            return;
+        }
     }
 };
 
@@ -89,7 +114,7 @@ export const updateRoles = async (req: Request, res: Response) => {
 
 export const deleteRoles = async (req: Request, res: Response) => {
     try {
-        const role = await rolesService.deleteRoles(req.params.id);
+        const role = await rolesService.deleteRoles(req.params.id, req.currentUser?.id);
         if (!role) {
             res.status(404).json(ResponseHandler.notFound("Rol no encontrado", 404));
             return;
@@ -104,5 +129,30 @@ export const deleteRoles = async (req: Request, res: Response) => {
         }
         res.status(500).json(ResponseHandler.error("Error interno del servidor"));
         return;
+    }
+};
+
+export const restoreRoles = async (req: Request, res: Response) => {
+    try {
+        const roles = await rolesService.restoreRoles(req.params.id);
+        if (!roles) {
+            res.status(404).json(ResponseHandler.notFound("Rol no encontrado", 404));
+            return;
+        }
+        res.status(200).json(ResponseHandler.success(roles, "Rol restaurado exitosamente"));
+        return;
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error al restaurar Rol:", error.message);
+            res.status(500).json(ResponseHandler.error(error.message));
+            return;
+        } else if (error instanceof mongoose.Error) {
+            res.status(500).json(ResponseHandler.handleMongooseError(error));
+            return;
+        } else {
+            console.error("Error desconocido:", error);
+            res.status(500).json(ResponseHandler.internalServerError(500));
+            return;
+        }
     }
 };

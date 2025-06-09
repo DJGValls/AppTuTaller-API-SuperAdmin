@@ -1,3 +1,4 @@
+import { ActivationStatus } from "enums/StatusMethods.enum";
 import { WorkshopModel } from "models/workshop.model";
 import { Params, Query } from "types/RepositoryTypes";
 import { InterfaceWorkshopRepository, Workshop } from "types/WorkshopTypes";
@@ -56,7 +57,7 @@ export class WorkshopRepository implements InterfaceWorkshopRepository {
 
     async findById(id: string): Promise<Workshop | null> {
         return await WorkshopModel.findOne({ _id: id, deletedAt: null })
-            // .populate(["contact", "account", "subscription", "workshopAdmin", "employees", "deletedBy"])
+            .populate(["contact", "account", "subscription", "workshopAdmin", "employees", "deletedBy"])
             .exec();
     }
 
@@ -78,12 +79,13 @@ export class WorkshopRepository implements InterfaceWorkshopRepository {
             {
                 deletedAt: new Date(),
                 deletedBy: userId,
+                status: ActivationStatus.INACTIVE
             },
             { new: true }
         ).exec();
         return result !== null;
     }
-    
+
     async restore(id: string): Promise<Workshop | null> {
         return await WorkshopModel.findOneAndUpdate(
             { _id: id, deletedAt: { $ne: null } },
@@ -91,11 +93,12 @@ export class WorkshopRepository implements InterfaceWorkshopRepository {
                 $unset: {
                     deletedAt: "",
                     deletedBy: "",
+                    status: ActivationStatus.ACTIVE
                 },
             },
             { new: true }
         )
-            .populate(["contact", "account", "subscription", "workshopAdmin", "employees", "deletedBy"])
+            .populate("")
             .exec();
     }
 }

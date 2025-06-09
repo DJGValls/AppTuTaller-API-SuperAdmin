@@ -134,7 +134,7 @@ export const updateSubscriptionDuration = async (req: Request, res: Response) =>
 
 export const deleteSubscriptionDuration = async (req: Request, res: Response) => {
     try {
-        const subscriptionDuration = await subscriptionDurationService.deleteSubscriptionDuration(req.params.id);
+        const subscriptionDuration = await subscriptionDurationService.deleteSubscriptionDuration(req.params.id, req.currentUser?.id);
         if (!subscriptionDuration) {
             res.status(404).json(ResponseHandler.notFound("SubscriptionDuration no encontrado", 404));
             return;
@@ -144,6 +144,31 @@ export const deleteSubscriptionDuration = async (req: Request, res: Response) =>
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error("Error al eliminar SubscriptionDuration:", error.message);
+            res.status(500).json(ResponseHandler.error(error.message));
+            return;
+        } else if (error instanceof mongoose.Error) {
+            res.status(500).json(ResponseHandler.handleMongooseError(error));
+            return;
+        } else {
+            console.error("Error desconocido:", error);
+            res.status(500).json(ResponseHandler.internalServerError(500));
+            return;
+        }
+    }
+};
+
+export const restoreSubscriptionDuration = async (req: Request, res: Response) => {
+    try {
+        const subscriptionDuration = await subscriptionDurationService.restoreSubscriptionDuration(req.params.id);
+        if (!subscriptionDuration) {
+            res.status(404).json(ResponseHandler.notFound("SubscriptionDuration no encontrado", 404));
+            return;
+        }
+        res.status(200).json(ResponseHandler.success(subscriptionDuration, "SubscriptionDuration restaurado exitosamente"));
+        return;
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error al restaurar SubscriptionDuration:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {

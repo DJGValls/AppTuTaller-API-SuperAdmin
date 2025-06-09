@@ -14,13 +14,13 @@ export class UserRepository implements InterfaceUserRepository {
         const page = params?.page ? Number(params.page) : 1;
         const perPage = params?.perPage ? Number(params.perPage) : 10;
         const skip = (page - 1) * perPage;
-        let mongoQuery: any = {};
+        let mongoQuery: any = { deletedAt: null }; // Excluir registros eliminados
         if (query) {
             Object.entries(query).forEach(([key, value]) => {
                 if (value) {
-                    if (typeof value === 'string') {
+                    if (typeof value === "string") {
                         // Búsqueda case-insensitive con regex para strings
-                        mongoQuery[key] = { $regex: value, $options: 'i' };
+                        mongoQuery[key] = { $regex: value, $options: "i" };
                     } else {
                         mongoQuery[key] = value;
                     }
@@ -33,17 +33,17 @@ export class UserRepository implements InterfaceUserRepository {
             .skip(skip)
             .limit(perPage)
             .exec();
-        
+
         return users;
     }
 
     async countUsers(query?: Query): Promise<number> {
-        let mongoQuery: any = {};
+        let mongoQuery: any = { deletedAt: null }; // Excluir registros eliminados
         if (query) {
             Object.entries(query).forEach(([key, value]) => {
                 if (value) {
-                    if (typeof value === 'string') {
-                        mongoQuery[key] = { $regex: value, $options: 'i' };
+                    if (typeof value === "string") {
+                        mongoQuery[key] = { $regex: value, $options: "i" };
                     } else {
                         mongoQuery[key] = value;
                     }
@@ -55,19 +55,43 @@ export class UserRepository implements InterfaceUserRepository {
     }
 
     async findById(id: string): Promise<User | null> {
-        return await UserModel.findById(id).populate("roles").exec();
+        return await UserModel.findOne({ _id: id, deletedAt: null }).populate("roles").exec();
     }
 
     async findOne(query: any): Promise<User | null> {
-        return await UserModel.findOne(query).populate("roles").exec();
+        return await UserModel.findOne({ ...query, deletedAt: null })
+            .populate("roles")
+            .exec();
     }
 
     async update(id: string, data: User): Promise<User | null> {
-        return await UserModel.findByIdAndUpdate(id, data, { new: true }).populate("roles").exec();
+        return await UserModel.findOneAndUpdate({ _id: id, deletedAt: null }, data, { new: true })
+            .populate("roles")
+            .exec();
     }
 
-    async delete(id: string): Promise<boolean> {
-        const deleted = await UserModel.findByIdAndDelete(id).exec();
-        return deleted !== null;
+    async delete(id: string, userId: string): Promise<boolean> {
+        const result = await UserModel.findOneAndUpdate(
+            { _id: id, deletedAt: null },
+            {
+                deletedAt: new Date(),
+                deletedBy: userId,
+            },
+            { new: true }
+        ).exec();
+        return result !== null;
+    }
+
+    async restore(id: string): Promise<User | null> {
+        return await UserModel.findOneAndUpdate(
+            { _id: id, deletedAt: { $ne: null } },
+            {
+                $unset: {
+                    deletedAt: "",
+                    deletedBy: "",
+                },
+            },
+            { new: true }
+        ).exec();
     }
 }

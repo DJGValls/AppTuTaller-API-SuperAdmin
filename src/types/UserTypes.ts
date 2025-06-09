@@ -1,27 +1,24 @@
 import mongoose, { Document } from "mongoose";
 import { Params, Query, Repository } from "./RepositoryTypes";
 
-export interface User extends Document{
+export interface User extends Document {
     name: string;
     firstName: string;
     lastName: string;
     email: string;
     password: string;
     phone: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-    deletedAt?: Date;
-    modifyBy?: string;
-    createdBy?: string;
-    deletedBy?: string;
     roles?: mongoose.Types.ObjectId[];
     permissions?: string[];
+    deletedAt?: Date;
+    deletedBy?: mongoose.Types.ObjectId;
     comparePassword(password: string): Promise<boolean>;
 }
 
-export interface InterfaceUserRepository extends Repository<User>{
+export interface InterfaceUserRepository extends Repository<User> {
     countUsers(query?: Query): Promise<number>;
     findOne(query: Query): Promise<User | null>; // Para buscar cualquier usuario por un valor, ya sea name, firstName, email etc...
+    restore(id: string): Promise<User | null>;
 }
 
 export interface InterfaceUserService {
@@ -31,4 +28,5 @@ export interface InterfaceUserService {
     findUserByEmail(email: string): Promise<User | null>;
     updateUser(id: string, user: Partial<User>): Promise<User | null>;
     deleteUser(id: string): Promise<boolean>;
+    restoreUser(id: string): Promise<User | null>;
 }

@@ -27,11 +27,11 @@ export class UserService implements InterfaceUserService {
     async updateUser(id: string, user: Partial<User>): Promise<User | null> {
         return await this.userRepository.update(id, user);
     }
-    async deleteUser(id: string): Promise<boolean> {
-        const user = await this.userRepository.delete(id);
+    async deleteUser(id: string, userId?: string): Promise<boolean> {
+        const user = await this.userRepository.delete(id, userId);
         return user ?? false;
     }
-
-
-
+    async restoreUser(id: string): Promise<User | null> {
+        return await this.userRepository.restore(id);
+    }
 }

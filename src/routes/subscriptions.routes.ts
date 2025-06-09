@@ -3,6 +3,7 @@ import {
     deleteSubscription,
     findSubscriptionById,
     findSubscriptions,
+    restoreSubscription,
     updateSubscription,
 } from "controllers/subscriptions.controller";
 import { Router } from "express";
@@ -26,6 +27,8 @@ router.post("/", validate(subscriptionCreateSchema), getPermissions, checkRoles,
 router.put("/:id", validate(subscriptionUpdateSchema), getPermissions, updateSubscription);
 
 router.delete("/:id", getPermissions, deleteSubscription);
+
+router.get('/:id/restore', getPermissions, restoreSubscription);
 
 
 export default router;
