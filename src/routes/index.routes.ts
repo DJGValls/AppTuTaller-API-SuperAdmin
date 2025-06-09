@@ -4,8 +4,8 @@ import usersRoutes from "./users.routes.ts";
 import rolesRoutes from "./roles.routes.ts";
 import authRoutes from "./auth.routes.ts";
 import subscriptionsRoutes from "./subscriptions.routes.ts";
+import wokshopsRoutes from "./wokshops.routes.ts";
 import { verifyToken } from 'middlewares/auth.middleware.ts';
-import subscriptionDurationsRoutes from "./subscriptionDurations.routes.ts";
 
 const router = Router();
 
@@ -21,5 +21,7 @@ router.use("/users", verifyToken, usersRoutes);
 router.use("/roles", verifyToken, rolesRoutes);
 // Subscriptions routes
 router.use("/subscriptions", verifyToken, subscriptionsRoutes);
+// Workshops routes
+router.use("/wokshops", verifyToken, wokshopsRoutes);
 
 export default router;

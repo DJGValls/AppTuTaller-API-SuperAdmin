@@ -56,7 +56,7 @@ export class WorkshopRepository implements InterfaceWorkshopRepository {
 
     async findById(id: string): Promise<Workshop | null> {
         return await WorkshopModel.findOne({ _id: id, deletedAt: null })
-            .populate(["contact", "account", "subscription", "workshopAdmin", "employees", "deletedBy"])
+            // .populate(["contact", "account", "subscription", "workshopAdmin", "employees", "deletedBy"])
             .exec();
     }
 
@@ -83,6 +83,7 @@ export class WorkshopRepository implements InterfaceWorkshopRepository {
         ).exec();
         return result !== null;
     }
+    
     async restore(id: string): Promise<Workshop | null> {
         return await WorkshopModel.findOneAndUpdate(
             { _id: id, deletedAt: { $ne: null } },
