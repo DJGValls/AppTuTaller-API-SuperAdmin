@@ -1,0 +1,6 @@
+export enum UserTypesEnum {
+    SUPER_ADMIN = "SUPER_ADMIN",
+    WORKSHOP_ADMIN = "WORKSHOP_ADMIN",
+    EMPLOYEE = "EMPLOYEE",
+    CLIENT = "CLIENT"
+}
