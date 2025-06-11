@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { User } from "types/UserTypes";
 import bcrypt from "bcryptjs";
+import { UserTypesEnum } from "enums/UserTypes.enums";
 
 const userSchema = new mongoose.Schema<User>(
     {
@@ -14,37 +15,61 @@ const userSchema = new mongoose.Schema<User>(
             required: true,
             trim: true,
         },
-        name: {
-            type: String,
-            required: true,
+        contact: {
+            type: Schema.Types.ObjectId,
+            ref: "Contact",
         },
-        firstName: {
-            type: String,
-            required: true,
-        },
-        lastName: {
-            type: String,
-            required: true,
-        },
-        phone: {
-            type: String,
-            required: true,
-        },
+        userTypes: [
+            {
+                type: String,
+                enum: Object.values(UserTypesEnum),
+                required: true,
+            },
+        ],
+        roles: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Roles",
+                required: true,
+            },
+        ],
         permissions: {
             type: [String],
             default: [],
+            required: true,
         },
-        roles: [
-            {
-                ref: "Roles",
-                type: Schema.Types.ObjectId,
-            },
-        ],
+        // Agrupamos los campos específicos por tipo de usuario
+        workshopAdminProfile: {
+            managedWorkshops: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: "Workshops",
+                },
+            ],
+        },
+        employeeProfile: {
+            workshops: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: "Workshops",
+                },
+            ],
+            category: String,
+            speciality: String,
+        },
+        clientProfile: {
+            preferredWorkshops: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: "Workshops",
+                },
+            ],
+        },
         deletedAt: Date,
         deletedBy: {
             type: Schema.Types.ObjectId,
-            ref: 'User'
-        }
+            ref: "User",
+        },
     },
     {
         timestamps: true,

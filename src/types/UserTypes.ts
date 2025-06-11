@@ -1,19 +1,31 @@
 import mongoose, { Document } from "mongoose";
 import { Params, Query, Repository } from "./RepositoryTypes";
 import { UserTypesEnum } from "enums/UserTypes.enums";
+import { Contact } from "./ContactTypes";
 
 export interface User extends Document {
     email: string;
     password: string;
-    contact: mongoose.Types.ObjectId; //los datos del contacto
+    contact: mongoose.Types.ObjectId | Contact; //los datos del contacto
     userTypes: UserTypesEnum[]; // Puede ser un usuario de varios tipos a la vez
     roles: mongoose.Types.ObjectId[]; // Puede tener varios roles segun los tipos de usuario contratado
-    permissions?: string[];
-    managedWorkshops?: mongoose.Types.ObjectId[]; // Para los talleres que el usuario administra
-    employeeWorkshops?: mongoose.Types.ObjectId[]; // Para los talleres donde el usuario es empleado
-    clientWorkshops?: mongoose.Types.ObjectId[]; // Para los talleres donde el usuario es cliente
-    employeeCategory?: string // Si es un empleado, el taller puede definir su categoria
-    employeeSpeciability?: string // Si es un empleado, el taller puede definir su especialidad
+    permissions: string[];
+    // Para los talleres que el usuario administra
+    workshopAdminProfile?: {
+        managedWorkshops: mongoose.Types.ObjectId[];
+    };
+    // Para los talleres donde el usuario es empleado
+    // Si es un empleado, el taller puede definir su categoria
+    // Si es un empleado, el taller puede definir su especialidad
+    employeeProfile?: {
+        workshops: mongoose.Types.ObjectId[];
+        category?: string;
+        speciality?: string;
+    };
+    // Para los talleres donde el usuario es cliente
+    clientProfile?: {
+        preferredWorkshops: mongoose.Types.ObjectId[];
+    };
     deletedAt?: Date;
     deletedBy?: mongoose.Types.ObjectId;
     comparePassword(password: string): Promise<boolean>;

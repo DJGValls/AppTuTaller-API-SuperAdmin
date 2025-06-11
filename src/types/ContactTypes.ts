@@ -2,7 +2,7 @@ import mongoose, { Document } from "mongoose";
 import { Params, Query, Repository } from "./RepositoryTypes";
 
 export interface Contact extends Document {
-    userId: mongoose.Types.ObjectId;
+    userId?: mongoose.Types.ObjectId | unknown;
     name: string;
     surname: string;
     phone: string;

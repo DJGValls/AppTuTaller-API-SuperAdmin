@@ -5,7 +5,6 @@ const contactSchema = new mongoose.Schema<Contact>(
         userId: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: true,
         },
         name: {
             type: String,

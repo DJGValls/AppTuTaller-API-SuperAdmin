@@ -9,9 +9,14 @@ import { populateBuilder } from "utils/queryBuilders/CustomPopulateBuilder";
 import { filterBuilder } from "utils/queryBuilders/CustomFilterBuilder";
 import { Params } from "types/RepositoryTypes";
 import { paginationBuilder } from "utils/queryBuilders/CustomPaginationBuilder";
+import { Contact, InterfaceContactRepository } from "types/ContactTypes";
+import { ContactRepository } from "repositories/contactRepositories";
+import { ContactService } from "services/contactService";
 
 const userRepository: InterfaceUserRepository = new UserRepository();
 const userService = new UserService(userRepository);
+const contactRepository: InterfaceContactRepository = new ContactRepository();
+const contactService = new ContactService(contactRepository);
 
 export const findUsers = async (req: Request, res: Response) => {
     try {
@@ -29,10 +34,12 @@ export const findUsers = async (req: Request, res: Response) => {
             res.status(404).json(ResponseHandler.notFound("Usuarios no encontrados", 404));
             return;
         }
-        if (!params.all || params.all === 'false' || params.all === '0') {
-            const pagination = paginationBuilder(params, total)
-            res.status(200).json(ResponseHandler.paginationSuccess(users, pagination, "Usuarios encontrados exitosamente"));
-            return
+        if (!params.all || params.all === "false" || params.all === "0") {
+            const pagination = paginationBuilder(params, total);
+            res.status(200).json(
+                ResponseHandler.paginationSuccess(users, pagination, "Usuarios encontrados exitosamente")
+            );
+            return;
         } else {
             res.status(200).json(ResponseHandler.success(users, "Usuarios encontrados exitosamente"));
             return;
@@ -86,9 +93,42 @@ export const findUserById = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const newUser: User = req.body;
-        const result = await userService.createUser(newUser);
-        res.status(201).json(ResponseHandler.success(result, "Usuario creado exitosamente", 201));
+        // Primero creamos el contacto
+        const contactData = req.body.contact;
+        let userData: User;
+        let contactId: string | unknown;
+
+        if (typeof contactData === "object") {
+            const contact = await contactService.createContact(contactData);
+            if (!contact) {
+                res.status(400).json(ResponseHandler.badRequest("Error al crear el contacto", 400));
+                return;
+            }
+            // Creamos el usuario con el ID del contacto
+            contactId = contact._id;
+            userData = {
+                ...req.body,
+                contact: contactId, // Reemplazamos la info del contacto con su ID
+            };
+        } else {
+            userData = req.body;
+        }
+
+        const result = await userService.createUser(userData);
+
+        if (!result) {
+            res.status(400).json(ResponseHandler.badRequest("Error al crear el usuario", 400));
+            return;
+        }
+
+        // Actualizamos el contacto con el ID del usuario
+        await contactService.updateContact(typeof contactData === "object" ? contactId : contactData, {
+            userId: result._id,
+        });
+        // Devolvemos el usuario creado con el contacto populado
+        const userWithContact = await userService.findUserById(result._id as string);
+
+        res.status(201).json(ResponseHandler.success(userWithContact, "Usuario creado exitosamente", 201));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {

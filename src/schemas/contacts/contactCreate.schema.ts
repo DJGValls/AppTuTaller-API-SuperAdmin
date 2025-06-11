@@ -2,15 +2,11 @@ import mongoose from "mongoose";
 import { z } from "zod";
 export const contactCreateSchema = z.object({
     userId: z
-        .string({
-            required_error: "User ID is required",
-        })
-        .min(1, {
-            message: "User ID cannot be empty",
-        })
+        .string()
         .refine((val) => mongoose.Types.ObjectId.isValid(val), {
             message: "Invalid User ID format",
-        }),
+        })
+        .optional(),
     name: z
         .string({
             required_error: "Name is required",

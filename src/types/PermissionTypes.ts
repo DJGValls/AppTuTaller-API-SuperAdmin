@@ -22,6 +22,8 @@ export const permissions: Permission[] = [
             roles: ["roles_read"],
             subscriptions: ["subscriptions_read"],
             subscriptionDurations: ["subscription_durations_read"],
+            contacts: ["contacts_read"],
+            workshops:["workshops_read"]
         },
     },
     {
@@ -33,6 +35,8 @@ export const permissions: Permission[] = [
             roles: ["roles_create"],
             subscriptions: ["subscriptions_create"],
             subscriptionDurations: ["subscription_durations_create"],
+            contacts: ["contacts_create"],
+            workshops:["workshops_create"]
         },
     },
     {
@@ -44,6 +48,8 @@ export const permissions: Permission[] = [
             roles: ["roles_update"],
             subscriptions: ["subscriptions_update"],
             subscriptionDurations: ["subscription_durations_update"],
+            contacts: ["contacts_update"],
+            workshops:["workshops_update"]
         },
     },
     {
@@ -55,6 +61,8 @@ export const permissions: Permission[] = [
             roles: ["roles_delete"],
             subscriptions: ["subscriptions_delete"],
             subscriptionDurations: ["subscription_durations_delete"],
+            contacts: ["contacts_delete"],
+            workshops:["workshops_delete"]
         },
     },
 ];

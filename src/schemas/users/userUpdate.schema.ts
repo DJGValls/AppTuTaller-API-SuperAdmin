@@ -1,58 +1,68 @@
 import { z } from "zod";
 import mongoose from "mongoose";
 import { UserTypesEnum } from "enums/UserTypes.enums";
-export const userCreateSchema = z
+export const userUpdateSchema = z
     .object({
-        // Campos básicos del usuario
+        // Campos básicos del usuario (todos opcionales para actualización)
         email: z
-            .string({
-                required_error: "Email is required",
-            })
+            .string()
             .email({
                 message: "Invalid email format",
-            }),
-        password: z
-            .string({
-                required_error: "Password is required",
             })
+            .optional(),
+        password: z
+            .string()
             .min(6, {
                 message: "Password must be at least 6 characters",
-            }),
-        // Campo de contacto requerido
-        contact: z
-            .string({
-                required_error: "Contact ID is required",
             })
-            .min(1, {
-                message: "Contact ID cannot be empty",
-            })
-            .refine((val) => mongoose.Types.ObjectId.isValid(val), {
-                message: "Invalid Contact ID format",
+            .optional(),
+        // Información de contacto
+        contact: z.object({
+            name: z.string({
+                required_error: "Contact name is required",
             }),
-
-        // Tipos de usuario y roles
+            surname: z.string({
+                required_error: "Contact surname is required",
+            }),
+            phone: z.string({
+                required_error: "Contact phone is required",
+            }),
+            address: z.string({
+                required_error: "Contact address is required",
+            }),
+            state: z.string({
+                required_error: "Contact state is required",
+            }),
+            city: z.string({
+                required_error: "Contact city is required",
+            }),
+            postalCode: z.string({
+                required_error: "Contact postal code is required",
+            }),
+            country: z.string({
+                required_error: "Contact country is required",
+            }),
+        }),
+        // Tipos de usuario y roles (opcionales para actualización)
         userTypes: z
-            .array(z.nativeEnum(UserTypesEnum), {
-                required_error: "User types are required",
-            })
+            .array(z.nativeEnum(UserTypesEnum))
             .min(1, {
-                message: "At least one user type is required",
-            }),
+                message: "At least one user type is required when updating types",
+            })
+            .optional(),
         roles: z
             .array(
-                z.string({
-                    required_error: "Role IDs are required",
+                z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+                    message: "Invalid Role ID format",
                 })
             )
             .min(1, {
-                message: "At least one role is required",
+                message: "At least one role is required when updating roles",
             })
-            .refine((val) => val.every((id) => mongoose.Types.ObjectId.isValid(id)), {
-                message: "Invalid Role ID format",
-            }),
-        // Permisos
-        permissions: z.array(z.string()).min(1, "Al menos un permiso es requerido"),
-        // Perfiles específicos por tipo de usuario
+            .optional(),
+        // Permisos (opcional)
+        permissions: z.array(z.string()).optional(),
+        // Perfiles específicos por tipo de usuario (opcionales)
         workshopAdminProfile: z
             .object({
                 managedWorkshops: z
@@ -91,19 +101,14 @@ export const userCreateSchema = z
     })
     .refine(
         (data) => {
-            // Validar que los perfiles correspondan con los tipos de usuario
+            // Solo validar los perfiles si se están actualizando los tipos de usuario
+            if (!data.userTypes) return true;
             const hasWorkshopAdmin = data.userTypes.includes(UserTypesEnum.WORKSHOP_ADMIN);
             const hasEmployee = data.userTypes.includes(UserTypesEnum.EMPLOYEE);
             const hasClient = data.userTypes.includes(UserTypesEnum.CLIENT);
-            if (hasWorkshopAdmin && !data.workshopAdminProfile) {
-                return false;
-            }
-            if (hasEmployee && !data.employeeProfile) {
-                return false;
-            }
-            if (hasClient && !data.clientProfile) {
-                return false;
-            }
+            if (hasWorkshopAdmin && !data.workshopAdminProfile) return false;
+            if (hasEmployee && !data.employeeProfile) return false;
+            if (hasClient && !data.clientProfile) return false;
             return true;
         },
         {

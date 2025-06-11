@@ -5,9 +5,11 @@ export const contactUpdateSchema = z.object({
         .string({
             required_error: "User ID is required",
         })
-        .refine((val) => mongoose.Types.ObjectId.isValid(val), {
+        .refine((val) => !val || mongoose.Types.ObjectId.isValid(val), {
             message: "Invalid User ID format",
-        }),
+        })
+        .transform((val) => (val ? new mongoose.Types.ObjectId(val) : undefined))
+        .optional(),
     name: z
         .string({
             required_error: "Name is required",
