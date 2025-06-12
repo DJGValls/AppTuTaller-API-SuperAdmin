@@ -9,14 +9,14 @@ import { paginationBuilder } from "utils/queryBuilders/CustomPaginationBuilder";
 import { Contact, InterfaceContactRepository } from "types/ContactTypes";
 import { ContactRepository } from "repositories/contactRepositories";
 import { ContactService } from "services/contactService";
-import { InterfaceUserRepository } from "types/UserTypes";
-import { UserRepository } from "repositories/userRepositories";
-import { UserService } from "services/userService";
+// import { InterfaceUserRepository } from "types/UserTypes";
+// import { UserRepository } from "repositories/userRepositories";
+// import { UserService } from "services/userService";
 
 const contactRepository: InterfaceContactRepository = new ContactRepository();
 const contactService = new ContactService(contactRepository);
-const userRepository: InterfaceUserRepository = new UserRepository();
-const userService = new UserService(userRepository);
+// const userRepository: InterfaceUserRepository = new UserRepository();
+// const userService = new UserService(userRepository);
 
 export const findContacts = async (req: Request, res: Response) => {
     try {
@@ -91,11 +91,6 @@ export const findContactById = async (req: Request, res: Response) => {
 
 export const createContact = async (req: Request, res: Response) => {
     try {
-        const user = await userService.findUserById(req.body.userId);
-        if (!user) {
-            res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
-            return;
-        }
         const newcontact: Contact = req.body;
         const result = await contactService.createContact(newcontact);
         res.status(201).json(ResponseHandler.success(result, "Contacto creado exitosamente", 201));
@@ -117,12 +112,8 @@ export const createContact = async (req: Request, res: Response) => {
 };
 
 export const updateContact = async (req: Request, res: Response) => {
+    
     try {
-        const user = await userService.findUserById(req.body.userId);
-        if (!user) {
-            res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
-            return;
-        }
         const contact = await contactService.updateContact(req.params.id, req.body);
         if (!contact) {
             res.status(404).json(ResponseHandler.notFound("Contacto no encontrado", 404));

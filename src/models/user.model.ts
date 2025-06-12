@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema<User>(
                 type: String,
                 enum: Object.values(UserTypesEnum),
                 required: true,
+                default: UserTypesEnum.CLIENT,
             },
         ],
         roles: [
@@ -46,6 +47,10 @@ const userSchema = new mongoose.Schema<User>(
                     ref: "Workshops",
                 },
             ],
+            isWorkshopAdmin: {
+                type: Boolean,
+                default: false,
+            },
         },
         employeeProfile: {
             workshops: [
@@ -54,6 +59,10 @@ const userSchema = new mongoose.Schema<User>(
                     ref: "Workshops",
                 },
             ],
+            isEmployee: {
+                type: Boolean,
+                default: false,
+            },
             category: String,
             speciality: String,
         },
@@ -64,6 +73,10 @@ const userSchema = new mongoose.Schema<User>(
                     ref: "Workshops",
                 },
             ],
+            isClient: {
+                type: Boolean,
+                default: false,
+            },
         },
         deletedAt: Date,
         deletedBy: {

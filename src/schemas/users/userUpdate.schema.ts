@@ -17,32 +17,12 @@ export const userUpdateSchema = z
             })
             .optional(),
         // Información de contacto
-        contact: z.object({
-            name: z.string({
-                required_error: "Contact name is required",
-            }),
-            surname: z.string({
-                required_error: "Contact surname is required",
-            }),
-            phone: z.string({
-                required_error: "Contact phone is required",
-            }),
-            address: z.string({
-                required_error: "Contact address is required",
-            }),
-            state: z.string({
-                required_error: "Contact state is required",
-            }),
-            city: z.string({
-                required_error: "Contact city is required",
-            }),
-            postalCode: z.string({
-                required_error: "Contact postal code is required",
-            }),
-            country: z.string({
-                required_error: "Contact country is required",
-            }),
-        }),
+        contact: z
+            .string()
+            .refine((val) => mongoose.Types.ObjectId.isValid(val), {
+                message: "Invalid Contact ID format",
+            })
+            .optional(),
         // Tipos de usuario y roles (opcionales para actualización)
         userTypes: z
             .array(z.nativeEnum(UserTypesEnum))
@@ -52,9 +32,7 @@ export const userUpdateSchema = z
             .optional(),
         roles: z
             .array(
-                z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
-                    message: "Invalid Role ID format",
-                })
+                z.string()
             )
             .min(1, {
                 message: "At least one role is required when updating roles",

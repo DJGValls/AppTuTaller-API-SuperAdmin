@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import { ResponseHandler } from "utils/ResponseHandler";
-import { AnyZodObject } from "zod";
-export const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: NextFunction) => {
+import { AnyZodObject, ZodEffects } from "zod";
+export const validate = (schema: AnyZodObject | ZodEffects<any>) => async (req: Request, res: Response, next: NextFunction) => {
     try {
-        schema.parse(req.body);
+        await schema.parseAsync(req.body);
         next();
     } catch (error: unknown) {
         if (error instanceof Error) {

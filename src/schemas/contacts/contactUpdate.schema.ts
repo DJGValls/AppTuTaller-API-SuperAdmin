@@ -2,13 +2,10 @@ import { z } from "zod";
 import mongoose from "mongoose";
 export const contactUpdateSchema = z.object({
     userId: z
-        .string({
-            required_error: "User ID is required",
-        })
-        .refine((val) => !val || mongoose.Types.ObjectId.isValid(val), {
+        .string()
+        .refine((val) => mongoose.Types.ObjectId.isValid(val), {
             message: "Invalid User ID format",
         })
-        .transform((val) => (val ? new mongoose.Types.ObjectId(val) : undefined))
         .optional(),
     name: z
         .string({

@@ -6,25 +6,28 @@ import { Contact } from "./ContactTypes";
 export interface User extends Document {
     email: string;
     password: string;
-    contact: mongoose.Types.ObjectId | Contact; //los datos del contacto
+    contact: mongoose.Types.ObjectId | Contact | unknown; //los datos del contacto
     userTypes: UserTypesEnum[]; // Puede ser un usuario de varios tipos a la vez
     roles: mongoose.Types.ObjectId[]; // Puede tener varios roles segun los tipos de usuario contratado
     permissions: string[];
     // Para los talleres que el usuario administra
     workshopAdminProfile?: {
+        isWorkshopAdmin?: boolean;
         managedWorkshops: mongoose.Types.ObjectId[];
     };
     // Para los talleres donde el usuario es empleado
     // Si es un empleado, el taller puede definir su categoria
     // Si es un empleado, el taller puede definir su especialidad
     employeeProfile?: {
-        workshops: mongoose.Types.ObjectId[];
+        isEmployee?: boolean;
+        workshops?: mongoose.Types.ObjectId[];
         category?: string;
         speciality?: string;
     };
     // Para los talleres donde el usuario es cliente
     clientProfile?: {
-        preferredWorkshops: mongoose.Types.ObjectId[];
+        isClient?: boolean;
+        preferredWorkshops?: mongoose.Types.ObjectId[];
     };
     deletedAt?: Date;
     deletedBy?: mongoose.Types.ObjectId;
