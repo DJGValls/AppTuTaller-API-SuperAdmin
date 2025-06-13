@@ -15,3 +15,9 @@ export enum ProgressStatus {
     DRAFT = "DRAFT",
     SUBMITTED = "SUBMITTED",
 }
+
+export enum PaymentStatus {
+    PENDING = "PENDING",
+    COMPLETED = "COMPLETED",
+    FAILED = "FAILED"
+}

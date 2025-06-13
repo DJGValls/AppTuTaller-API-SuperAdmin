@@ -1,16 +1,11 @@
 import mongoose, { Document } from "mongoose";
 import { Params, Query, Repository } from "./RepositoryTypes";
-import { PaymentMethod } from "enums/PaymentMethod.enums";
 import { ActivationStatus } from "enums/StatusMethods.enum";
 export interface Workshop extends Document {
     name: string;
     contact: mongoose.Types.ObjectId;
-    paymentMethod: PaymentMethod;
-    account?: mongoose.Types.ObjectId;
-    paypalEmailContact?: {
-        email: string;
-    };
     status: ActivationStatus;
+    paymentMethod: mongoose.Types.ObjectId; // Array de métodos de pago
     subscription: mongoose.Types.ObjectId;
     workshopAdmin: mongoose.Types.ObjectId;
     employees: mongoose.Types.ObjectId[];

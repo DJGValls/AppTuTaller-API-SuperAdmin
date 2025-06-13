@@ -1,4 +1,4 @@
-import { PaymentMethod } from "enums/PaymentMethod.enums";
+
 import { ActivationStatus } from "enums/StatusMethods.enum";
 import mongoose, { Schema } from "mongoose";
 import { Workshop } from "types/WorkshopTypes";
@@ -16,18 +16,9 @@ const workshopSchema = new mongoose.Schema<Workshop>(
             required: true
         },
         paymentMethod: {
-            type: String,
-            enum: Object.values(PaymentMethod),
-            required: true,
-            default: PaymentMethod.BANK_TRANSFER
-        },
-        account: {
             type: Schema.Types.ObjectId,
-            ref: "Account",
+            ref: "PaymentMethod",
             required: true
-        },
-        paypalEmailContact: {
-            email: String
         },
         status: {
             type: String,
