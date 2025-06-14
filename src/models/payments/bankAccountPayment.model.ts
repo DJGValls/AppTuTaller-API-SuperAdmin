@@ -1,21 +1,25 @@
 import mongoose, { Schema } from "mongoose";
 import { PaymentMethodModel } from "./paymentMethod.model";
-import { CreditCardPayment } from "types/payments/CreditCardPaymentTypes";
-const creditCardPaymentSchema = new mongoose.Schema<CreditCardPayment>(
+import { BankAccountPayment } from "types/payments/BankAccountPaymentTypes";
+const bankAccountPaymentSchema = new mongoose.Schema<BankAccountPayment>(
     {
-        cardNumber: {
+        accountNumber: {
             type: String,
             required: true,
         },
-        cardHolderName: {
+        bankName: {
             type: String,
             required: true,
         },
-        expirationDate: {
-            type: Date,
+        accountHolderName: {
+            type: String,
             required: true,
         },
-        cvv: {
+        swiftCode: {
+            type: String,
+            required: true,
+        },
+        iban: {
             type: String,
             required: true,
         },
@@ -30,4 +34,4 @@ const creditCardPaymentSchema = new mongoose.Schema<CreditCardPayment>(
         versionKey: false,
     }
 );
-export const CreditCardPaymentModel = PaymentMethodModel.discriminator("CREDIT_CARD", creditCardPaymentSchema);
+export const BankAccountPaymentModel = PaymentMethodModel.discriminator("BANK_ACCOUNT", bankAccountPaymentSchema);

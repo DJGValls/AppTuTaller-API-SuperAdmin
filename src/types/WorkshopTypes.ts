@@ -5,10 +5,10 @@ export interface Workshop extends Document {
     name: string;
     contact: mongoose.Types.ObjectId;
     status: ActivationStatus;
-    paymentMethod: mongoose.Types.ObjectId; // Array de métodos de pago
+    paymentMethod: mongoose.Types.ObjectId;
     subscription: mongoose.Types.ObjectId;
     workshopAdmin: mongoose.Types.ObjectId;
-    employees: mongoose.Types.ObjectId[];
+    employees?: mongoose.Types.ObjectId[];
     deletedAt?: Date;
     deletedBy?: mongoose.Types.ObjectId;
 }

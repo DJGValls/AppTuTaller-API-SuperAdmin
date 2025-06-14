@@ -1,6 +1,6 @@
 import { PaymentMethodEnum } from "enums/PaymentMethods.enums";
 import mongoose, { Schema } from "mongoose";
-import { PaymentMethod } from "types/PaymentTypes";
+import { PaymentMethod } from "types/payments/PaymentTypes";
 
 const paymentMethodSchema = new mongoose.Schema<PaymentMethod>(
     {
