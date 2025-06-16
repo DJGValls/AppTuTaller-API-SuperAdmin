@@ -1,15 +1,14 @@
-
-import { PaypalPaymentModel } from "models/payments/paypalPayment.model";
-import { InterfacePaypalPaymentRepository, PaypalPayment } from "types/payments/PaypalPaymentTypes";
+import { StripePaymentModel } from "models/payments/stripePayment.model";
+import { InterfaceStripePaymentRepository, StripePayment } from "types/payments/StripePaymentTypes";
 import { Params, Query } from "types/RepositoryTypes";
 
-export class PaypalPaymentRepository implements InterfacePaypalPaymentRepository {
-    async create(data: PaypalPayment): Promise<PaypalPayment> {
-        const newPaypalPayment = new PaypalPaymentModel(data);
-        return await newPaypalPayment.save();
+export class StripePaymentRepository implements InterfaceStripePaymentRepository {
+    async create(data: StripePayment): Promise<StripePayment> {
+        const newStripePayment = new StripePaymentModel(data);
+        return await newStripePayment.save();
     }
 
-    async find(query?: Query, params?: Params): Promise<PaypalPayment[]> {
+    async find(query?: Query, params?: Params): Promise<StripePayment[]> {
         const sortQuery = params?.sort ? params.sort : {};
         const populateQuery = params?.populate ? params.populate : [];
         const page = params?.page ? Number(params.page) : 1;
@@ -28,17 +27,17 @@ export class PaypalPaymentRepository implements InterfacePaypalPaymentRepository
                 }
             });
         }
-        const paypalPayments = await PaypalPaymentModel.find(mongoQuery)
+        const stripePayments = await StripePaymentModel.find(mongoQuery)
             .sort(sortQuery)
             .populate(populateQuery)
             .skip(skip)
             .limit(perPage)
             .exec();
 
-        return paypalPayments;
+        return stripePayments;
     }
 
-    async countPaypalPayments(query?: Query): Promise<number> {
+    async countStripePayments(query?: Query): Promise<number> {
         let mongoQuery: any = { deletedAt: null }; // Excluir registros eliminados
         if (query) {
             Object.entries(query).forEach(([key, value]) => {
@@ -51,36 +50,36 @@ export class PaypalPaymentRepository implements InterfacePaypalPaymentRepository
                 }
             });
         }
-        const total = await PaypalPaymentModel.countDocuments(mongoQuery).exec();
+        const total = await StripePaymentModel.countDocuments(mongoQuery).exec();
         return total;
     }
 
-    async findById(id: string): Promise<PaypalPayment | null> {
-        return await PaypalPaymentModel.findOne({ _id: id, deletedAt: null }).exec();
+    async findById(id: string): Promise<StripePayment | null> {
+        return await StripePaymentModel.findOne({ _id: id, deletedAt: null }).exec();
     }
 
-    async findOne(query: any): Promise<PaypalPayment | null> {
-        return await PaypalPaymentModel.findOne({ ...query, deletedAt: null }).exec();
+    async findOne(query: any): Promise<StripePayment | null> {
+        return await StripePaymentModel.findOne({ ...query, deletedAt: null }).exec();
     }
 
-    async update(id: string, data: PaypalPayment): Promise<PaypalPayment | null> {
-        return await PaypalPaymentModel.findOneAndUpdate({ _id: id, deletedAt: null }, data, { new: true }).exec();
+    async update(id: string, data: StripePayment): Promise<StripePayment | null> {
+        return await StripePaymentModel.findOneAndUpdate({ _id: id, deletedAt: null }, data, { new: true }).exec();
     }
 
-    async delete(id: string, paypalPaymentId: string): Promise<boolean> {
-        const result = await PaypalPaymentModel.findOneAndUpdate(
+    async delete(id: string, stripePaymentId: string): Promise<boolean> {
+        const result = await StripePaymentModel.findOneAndUpdate(
             { _id: id, deletedAt: null },
             {
                 deletedAt: new Date(),
-                deletedBy: paypalPaymentId,
+                deletedBy: stripePaymentId,
             },
             { new: true }
         ).exec();
         return result !== null;
     }
 
-    async restore(id: string): Promise<PaypalPayment | null> {
-        return await PaypalPaymentModel.findOneAndUpdate(
+    async restore(id: string): Promise<StripePayment | null> {
+        return await StripePaymentModel.findOneAndUpdate(
             { _id: id, deletedAt: { $ne: null } },
             {
                 $unset: {

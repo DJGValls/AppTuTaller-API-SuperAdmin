@@ -1,6 +1,6 @@
 import { PaymentMethodEnum } from "enums/PaymentMethods.enums";
 import mongoose, { Schema } from "mongoose";
-import { PaymentMethod } from "types/payments/PaymentTypes";
+import { PaymentMethod } from "types/payments/PaymentMethodTypes";
 
 const paymentMethodSchema = new mongoose.Schema<PaymentMethod>(
     {
@@ -12,7 +12,9 @@ const paymentMethodSchema = new mongoose.Schema<PaymentMethod>(
         type: {
             type: String,
             enum: PaymentMethodEnum,
-            required: true
+            required: true,
+            discriminatorKey: true,
+            default: PaymentMethodEnum.FREE_DEMO
         },
         deletedAt: Date,
         deletedBy: {

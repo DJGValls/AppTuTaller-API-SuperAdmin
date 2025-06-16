@@ -1,15 +1,15 @@
 
-import { CreditCardPaymentModel } from "models/payments/creditCardPayment.model";
-import { CreditCardPayment, InterfaceCreditCardPaymentRepository } from "types/payments/CreditCardPaymentTypes";
+import { PaymentMethodModel } from "models/payments/paymentMethod.model";
+import { InterfacePaymentMethodRepository, PaymentMethod } from "types/payments/PaymentMethodTypes";
 import { Params, Query } from "types/RepositoryTypes";
 
-export class CreditCardPaymentRepository implements InterfaceCreditCardPaymentRepository {
-    async create(data: CreditCardPayment): Promise<CreditCardPayment> {
-        const newCreditCardPayment = new CreditCardPaymentModel(data);
-        return await newCreditCardPayment.save();
+export class PaymentMethodRepository implements InterfacePaymentMethodRepository {
+    async create(data: PaymentMethod): Promise<PaymentMethod> {
+        const newPaymentMethod = new PaymentMethodModel(data);
+        return await newPaymentMethod.save();
     }
 
-    async find(query?: Query, params?: Params): Promise<CreditCardPayment[]> {
+    async find(query?: Query, params?: Params): Promise<PaymentMethod[]> {
         const sortQuery = params?.sort ? params.sort : {};
         const populateQuery = params?.populate ? params.populate : [];
         const page = params?.page ? Number(params.page) : 1;
@@ -28,17 +28,17 @@ export class CreditCardPaymentRepository implements InterfaceCreditCardPaymentRe
                 }
             });
         }
-        const creditCardPayments = await CreditCardPaymentModel.find(mongoQuery)
+        const paymentMethods = await PaymentMethodModel.find(mongoQuery)
             .sort(sortQuery)
             .populate(populateQuery)
             .skip(skip)
             .limit(perPage)
             .exec();
 
-        return creditCardPayments;
+        return paymentMethods;
     }
 
-    async countCreditCardPayments(query?: Query): Promise<number> {
+    async countPaymentMethods(query?: Query): Promise<number> {
         let mongoQuery: any = { deletedAt: null }; // Excluir registros eliminados
         if (query) {
             Object.entries(query).forEach(([key, value]) => {
@@ -51,36 +51,36 @@ export class CreditCardPaymentRepository implements InterfaceCreditCardPaymentRe
                 }
             });
         }
-        const total = await CreditCardPaymentModel.countDocuments(mongoQuery).exec();
+        const total = await PaymentMethodModel.countDocuments(mongoQuery).exec();
         return total;
     }
 
-    async findById(id: string): Promise<CreditCardPayment | null> {
-        return await CreditCardPaymentModel.findOne({ _id: id, deletedAt: null }).exec();
+    async findById(id: string): Promise<PaymentMethod | null> {
+        return await PaymentMethodModel.findOne({ _id: id, deletedAt: null }).exec();
     }
 
-    async findOne(query: any): Promise<CreditCardPayment | null> {
-        return await CreditCardPaymentModel.findOne({ ...query, deletedAt: null }).exec();
+    async findOne(query: any): Promise<PaymentMethod | null> {
+        return await PaymentMethodModel.findOne({ ...query, deletedAt: null }).exec();
     }
 
-    async update(id: string, data: CreditCardPayment): Promise<CreditCardPayment | null> {
-        return await CreditCardPaymentModel.findOneAndUpdate({ _id: id, deletedAt: null }, data, { new: true }).exec();
+    async update(id: string, data: PaymentMethod): Promise<PaymentMethod | null> {
+        return await PaymentMethodModel.findOneAndUpdate({ _id: id, deletedAt: null }, data, { new: true }).exec();
     }
 
-    async delete(id: string, creditCardPaymentId: string): Promise<boolean> {
-        const result = await CreditCardPaymentModel.findOneAndUpdate(
+    async delete(id: string, paymentMethodId: string): Promise<boolean> {
+        const result = await PaymentMethodModel.findOneAndUpdate(
             { _id: id, deletedAt: null },
             {
                 deletedAt: new Date(),
-                deletedBy: creditCardPaymentId,
+                deletedBy: paymentMethodId,
             },
             { new: true }
         ).exec();
         return result !== null;
     }
 
-    async restore(id: string): Promise<CreditCardPayment | null> {
-        return await CreditCardPaymentModel.findOneAndUpdate(
+    async restore(id: string): Promise<PaymentMethod | null> {
+        return await PaymentMethodModel.findOneAndUpdate(
             { _id: id, deletedAt: { $ne: null } },
             {
                 $unset: {

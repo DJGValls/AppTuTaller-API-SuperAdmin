@@ -5,7 +5,7 @@ export interface Workshop extends Document {
     name: string;
     contact: mongoose.Types.ObjectId;
     status: ActivationStatus;
-    paymentMethod: mongoose.Types.ObjectId;
+    paymentMethod?: mongoose.Types.ObjectId;
     subscription: mongoose.Types.ObjectId;
     workshopAdmin: mongoose.Types.ObjectId;
     employees?: mongoose.Types.ObjectId[];

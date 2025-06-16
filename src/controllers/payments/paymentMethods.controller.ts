@@ -6,14 +6,14 @@ import { populateBuilder } from "utils/queryBuilders/CustomPopulateBuilder";
 import { filterBuilder } from "utils/queryBuilders/CustomFilterBuilder";
 import { Params } from "types/RepositoryTypes";
 import { paginationBuilder } from "utils/queryBuilders/CustomPaginationBuilder";
-import { BankAccountPayment, InterfaceBankAccountPaymentRepository } from "types/payments/BankAccountPaymentTypes";
-import { BankAccountPaymentRepository } from "repositories/paymentRepositories/bankAccountPaymentRepositories";
-import { BankAccountPaymentService } from "services/payments/bankAccountPaymentService";
+import { InterfacePaymentMethodRepository, PaymentMethod } from "types/payments/PaymentMethodTypes";
+import { PaymentMethodRepository } from "repositories/paymentRepositories/paymentMethodRepositories";
+import { PaymentMethodService } from "services/payments/paymentMethodService";
 
-const bankAccountPaymentRepository: InterfaceBankAccountPaymentRepository = new BankAccountPaymentRepository();
-const bankAccountPaymentService = new BankAccountPaymentService(bankAccountPaymentRepository);
+const paymentMethodRepository: InterfacePaymentMethodRepository = new PaymentMethodRepository();
+const paymentMethodService = new PaymentMethodService(paymentMethodRepository);
 
-export const findBankAccountPayments = async (req: Request, res: Response) => {
+export const findPaymentMethods = async (req: Request, res: Response) => {
     try {
         const params: Params = {
             sort: sortsBuilder(req.query.sort),
@@ -23,24 +23,24 @@ export const findBankAccountPayments = async (req: Request, res: Response) => {
             perPage: req.query.perPage?.toString(),
             all: req.query.all?.toString(),
         };
-        const bankAccountPayments = await bankAccountPaymentService.findBankAccountPayments(params.filter, params);
-        const total = await bankAccountPaymentService.countBankAccountPayments(params.filter);
-        if (bankAccountPayments.length === 0) {
-            res.status(404).json(ResponseHandler.notFound("BankAccountPaymentos no encontrados", 404));
+        const paymentMethods = await paymentMethodService.findPaymentMethods(params.filter, params);
+        const total = await paymentMethodService.countPaymentMethods(params.filter);
+        if (paymentMethods.length === 0) {
+            res.status(404).json(ResponseHandler.notFound("PaymentMethodos no encontrados", 404));
             return;
         }
         if (!params.all || params.all === 'false' || params.all === '0') {
             const pagination = paginationBuilder(params, total)
-            res.status(200).json(ResponseHandler.paginationSuccess(bankAccountPayments, pagination, "BankAccountPaymentos encontrados exitosamente"));
+            res.status(200).json(ResponseHandler.paginationSuccess(paymentMethods, pagination, "PaymentMethodos encontrados exitosamente"));
             return
         } else {
-            res.status(200).json(ResponseHandler.success(bankAccountPayments, "BankAccountPaymentos encontrados exitosamente"));
+            res.status(200).json(ResponseHandler.success(paymentMethods, "PaymentMethodos encontrados exitosamente"));
             return;
         }
     } catch (error: unknown) {
         if (error instanceof Error) {
             // Error conocido con mensaje
-            console.error("Error al buscar BankAccountPaymento:", error.message);
+            console.error("Error al buscar PaymentMethodo:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -56,19 +56,19 @@ export const findBankAccountPayments = async (req: Request, res: Response) => {
     }
 };
 
-export const findBankAccountPaymentById = async (req: Request, res: Response) => {
+export const findPaymentMethodById = async (req: Request, res: Response) => {
     try {
-        const bankAccountPayment = await bankAccountPaymentService.findBankAccountPaymentById(req.params.id);
-        if (!bankAccountPayment) {
-            res.status(404).json(ResponseHandler.notFound("BankAccountPaymento no encontrado", 404));
+        const paymentMethod = await paymentMethodService.findPaymentMethodById(req.params.id);
+        if (!paymentMethod) {
+            res.status(404).json(ResponseHandler.notFound("PaymentMethodo no encontrado", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(bankAccountPayment, "BankAccountPaymento encontrado exitosamente"));
+        res.status(200).json(ResponseHandler.success(paymentMethod, "PaymentMethodo encontrado exitosamente"));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
             // Error conocido con mensaje
-            console.error("Error al buscar BankAccountPaymento:", error.message);
+            console.error("Error al buscar PaymentMethodo:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -84,15 +84,15 @@ export const findBankAccountPaymentById = async (req: Request, res: Response) =>
     }
 };
 
-export const createBankAccountPayment = async (req: Request, res: Response) => {
+export const createPaymentMethod = async (req: Request, res: Response) => {
     try {
-        const newBankAccountPayment: BankAccountPayment = req.body;
-        const result = await bankAccountPaymentService.createBankAccountPayment(newBankAccountPayment);
-        res.status(201).json(ResponseHandler.success(result, "BankAccountPaymento creado exitosamente", 201));
+        const newPaymentMethod: PaymentMethod = req.body;
+        const result = await paymentMethodService.createPaymentMethod(newPaymentMethod);
+        res.status(201).json(ResponseHandler.success(result, "PaymentMethodo creado exitosamente", 201));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
-            console.error("Error al crear BankAccountPaymento:", error.message);
+            console.error("Error al crear PaymentMethodo:", error.message);
             res.status(400).json(ResponseHandler.badRequest(error.message, 400));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -106,19 +106,19 @@ export const createBankAccountPayment = async (req: Request, res: Response) => {
     }
 };
 
-export const updateBankAccountPayment = async (req: Request, res: Response) => {
+export const updatePaymentMethod = async (req: Request, res: Response) => {
     
     try {
-        const bankAccountPayment = await bankAccountPaymentService.updateBankAccountPayment(req.params.id, req.body);
-        if (!bankAccountPayment) {
-            res.status(404).json(ResponseHandler.notFound("BankAccountPaymento no encontrado", 404));
+        const paymentMethod = await paymentMethodService.updatePaymentMethod(req.params.id, req.body);
+        if (!paymentMethod) {
+            res.status(404).json(ResponseHandler.notFound("PaymentMethodo no encontrado", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(bankAccountPayment, "BankAccountPaymento actualizado exitosamente"));
+        res.status(200).json(ResponseHandler.success(paymentMethod, "PaymentMethodo actualizado exitosamente"));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
-            console.error("Error al actualizar BankAccountPaymento:", error.message);
+            console.error("Error al actualizar PaymentMethodo:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -132,18 +132,18 @@ export const updateBankAccountPayment = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteBankAccountPayment = async (req: Request, res: Response) => {
+export const deletePaymentMethod = async (req: Request, res: Response) => {
     try {
-        const bankAccountPayment = await bankAccountPaymentService.deleteBankAccountPayment(req.params.id, req.currentUser?.id);
-        if (!bankAccountPayment) {
-            res.status(404).json(ResponseHandler.notFound("BankAccountPaymento no encontrado", 404));
+        const paymentMethod = await paymentMethodService.deletePaymentMethod(req.params.id, req.currentUser?.id);
+        if (!paymentMethod) {
+            res.status(404).json(ResponseHandler.notFound("PaymentMethodo no encontrado", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(bankAccountPayment, "BankAccountPaymento eliminado exitosamente"));
+        res.status(200).json(ResponseHandler.success(paymentMethod, "PaymentMethodo eliminado exitosamente"));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
-            console.error("Error al eliminar BankAccountPaymento:", error.message);
+            console.error("Error al eliminar PaymentMethodo:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {
@@ -157,18 +157,18 @@ export const deleteBankAccountPayment = async (req: Request, res: Response) => {
     }
 };
 
-export const restoreBankAccountPayment = async (req: Request, res: Response) => {
+export const restorePaymentMethod = async (req: Request, res: Response) => {
     try {
-        const bankAccountPayment = await bankAccountPaymentService.restoreBankAccountPayment(req.params.id);
-        if (!bankAccountPayment) {
-            res.status(404).json(ResponseHandler.notFound("BankAccountPaymento no encontrado", 404));
+        const paymentMethod = await paymentMethodService.restorePaymentMethod(req.params.id);
+        if (!paymentMethod) {
+            res.status(404).json(ResponseHandler.notFound("PaymentMethodo no encontrado", 404));
             return;
         }
-        res.status(200).json(ResponseHandler.success(bankAccountPayment, "BankAccountPaymento restaurado exitosamente"));
+        res.status(200).json(ResponseHandler.success(paymentMethod, "PaymentMethodo restaurado exitosamente"));
         return;
     } catch (error: unknown) {
         if (error instanceof Error) {
-            console.error("Error al restaurar BankAccountPaymento:", error.message);
+            console.error("Error al restaurar PaymentMethodo:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {

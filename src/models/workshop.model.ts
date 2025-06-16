@@ -18,7 +18,6 @@ const workshopSchema = new mongoose.Schema<Workshop>(
         paymentMethod: {
             type: Schema.Types.ObjectId,
             ref: "PaymentMethod",
-            required: true
         },
         status: {
             type: String,
