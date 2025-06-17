@@ -36,4 +36,7 @@ export const contactUpdateSchema = z.object({
     city: z.string().optional(),
     postalCode: z.string().optional(),
     country: z.string().optional(),
+    cif: z.string().refine((val) => /^[A-Z]{1}[0-9]{7}[A-Z]{1}$/.test(val), {
+        message: "Invalid CIF format",
+    }).optional(),
 });

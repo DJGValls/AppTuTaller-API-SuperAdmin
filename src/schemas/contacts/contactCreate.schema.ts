@@ -7,6 +7,12 @@ export const contactCreateSchema = z.object({
             message: "Invalid User ID format",
         })
         .optional(),
+    workshopId: z
+        .string()
+        .refine((val) => mongoose.Types.ObjectId.isValid(val), {
+            message: "Invalid workshop ID format",
+        })
+        .optional(),
     name: z
         .string({
             required_error: "Name is required",
@@ -47,4 +53,7 @@ export const contactCreateSchema = z.object({
     country: z.string({
         required_error: "Country is required",
     }),
+    cif: z.string().refine((val) => /^[A-Z]{1}[0-9]{7}[A-Z]{1}$/.test(val), {
+        message: "Invalid CIF format",
+    }).optional(),
 });

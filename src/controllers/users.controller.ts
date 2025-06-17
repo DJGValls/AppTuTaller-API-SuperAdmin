@@ -100,7 +100,7 @@ export const findUserById = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const userData: User = req.body;
+        let userData: User = req.body;
         let contact: Contact;
         // Verificar si se proporcionó un ID de contacto o un objeto de contacto
         if (typeof req.body.contact === "string") {

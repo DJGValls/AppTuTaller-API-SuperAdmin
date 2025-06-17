@@ -6,6 +6,10 @@ const contactSchema = new mongoose.Schema<Contact>(
             type: Schema.Types.ObjectId,
             ref: "User",
         },
+        workshopId: {
+            type: Schema.Types.ObjectId,
+            ref: "Workshop",
+        },
         name: {
             type: String,
             required: true,
@@ -35,6 +39,10 @@ const contactSchema = new mongoose.Schema<Contact>(
             required: true,
         },
         country: {
+            type: String,
+            required: true,
+        },
+        cif: {
             type: String,
             required: true,
         },

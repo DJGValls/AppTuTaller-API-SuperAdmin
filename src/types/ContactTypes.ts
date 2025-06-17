@@ -3,6 +3,7 @@ import { Params, Query, Repository } from "./RepositoryTypes";
 
 export interface Contact extends Document {
     userId?: mongoose.Types.ObjectId | unknown;
+    workshopId?: mongoose.Types.ObjectId | unknown;
     name: string;
     surname: string;
     phone: string;
@@ -11,6 +12,7 @@ export interface Contact extends Document {
     city: string;
     postalCode: string;
     country: string;
+    cif?: string;
     deletedAt?: Date;
     deletedBy?: mongoose.Types.ObjectId;
 }

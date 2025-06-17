@@ -1,9 +1,10 @@
 import mongoose, { Document } from "mongoose";
 import { Params, Query, Repository } from "./RepositoryTypes";
 import { ActivationStatus } from "enums/StatusMethods.enum";
+import { Contact } from "./ContactTypes";
 export interface Workshop extends Document {
     name: string;
-    contact: mongoose.Types.ObjectId;
+    contact: mongoose.Types.ObjectId | Contact | unknown;
     status: ActivationStatus;
     paymentMethod?: mongoose.Types.ObjectId;
     subscription: mongoose.Types.ObjectId;

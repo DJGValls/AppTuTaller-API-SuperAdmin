@@ -13,7 +13,6 @@ const workshopSchema = new mongoose.Schema<Workshop>(
         contact: {
             type: Schema.Types.ObjectId,
             ref: "Contact",
-            required: true
         },
         paymentMethod: {
             type: Schema.Types.ObjectId,
