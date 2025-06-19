@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ResponseHandler } from "utils/ResponseHandler";
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { sortsBuilder } from "utils/queryBuilders/CustomSortsBuilder";
 import { populateBuilder } from "utils/queryBuilders/CustomPopulateBuilder";
 import { filterBuilder } from "utils/queryBuilders/CustomFilterBuilder";
@@ -16,6 +16,9 @@ import { InterfaceUserRepository, User } from "types/UserTypes";
 import { UserRepository } from "repositories/userRepositories";
 import { UserService } from "services/userService";
 import { UserTypesEnum } from "enums/UserTypes.enums";
+import { InterfaceSubscriptionRepository } from "types/SubscriptionsTypes";
+import { SubscriptionRepository } from "repositories/subscriptionRepositories";
+import { SubscriptionService } from "services/subscriptionService";
 
 const workshopRepository: InterfaceWorkshopRepository = new WorkshopRepository();
 const workshopService = new WorkshopService(workshopRepository);
@@ -23,6 +26,8 @@ const contactRepository: InterfaceContactRepository = new ContactRepository();
 const contactService = new ContactService(contactRepository);
 const userRepository: InterfaceUserRepository = new UserRepository();
 const userService = new UserService(userRepository);
+const subscriptionRepository: InterfaceSubscriptionRepository = new SubscriptionRepository();
+const subscriptionService = new SubscriptionService(subscriptionRepository);
 
 export const findWorkshops = async (req: Request, res: Response) => {
     try {
@@ -94,9 +99,10 @@ export const createWorkshop = async (req: Request, res: Response) => {
         let workshopData: Workshop = req.body;
         let contact: Contact;
         let workshopAdmin: User | null = null;
-        // verificar si el workshopData.workshopAdmin existe y es de tipo WORKSHOP_ADMIN
+        
+        // Verificar si el workshopData.workshopAdmin existe y es de tipo WORKSHOP_ADMIN
         if (workshopData.workshopAdmin) {
-            workshopAdmin = await userService.findUserById(workshopData.workshopAdmin as unknown as string) as User;
+            workshopAdmin = (await userService.findUserById(workshopData.workshopAdmin as unknown as string)) as User;
             if (!workshopAdmin) {
                 res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
                 return;
@@ -106,10 +112,26 @@ export const createWorkshop = async (req: Request, res: Response) => {
                 return;
             }
         }
+        
+        // verificar si el subscription existe
+        if (workshopData.subscription) {
+            const subscription = await subscriptionService.findSubscriptionById(
+                workshopData.subscription as unknown as string
+            );
+            workshopData.subscription = subscription?._id;
+        } else {
+            const freeDemoSubscription = await subscriptionService.findSubscriptionByTitle("FREE_DEMO");
+            if (!freeDemoSubscription) {
+                res.status(404).json(ResponseHandler.notFound("Suscripción no encontrada", 404));
+                return;
+            }
+            workshopData.subscription = freeDemoSubscription._id;
+        }
+
         // Verificar si se proporcionó un ID de contacto o un objeto de contacto
-        if (typeof req.body.contact === "string") {
+        if (typeof workshopData.contact === "string") {
             // Si es un string, buscar el contacto existente
-            const existingContact = await contactService.findContactById(req.body.contact);
+            const existingContact = await contactService.findContactById(workshopData.contact);
             if (!existingContact) {
                 res.status(404).json(ResponseHandler.notFound("Contacto no encontrado", 404));
                 return;
@@ -117,12 +139,13 @@ export const createWorkshop = async (req: Request, res: Response) => {
             contact = existingContact;
         } else {
             // Si es un objeto, crear un nuevo contacto
-            const newContact = await contactService.createContact(req.body.contact);
-            contact = newContact;
-            workshopData.contact = newContact._id;
+            contact = await contactService.createContact(workshopData.contact as Contact);
+            workshopData.contact = contact._id;
         }
+
         // creamos taller
         const result = await workshopService.createWorkshop(workshopData);
+
         // Actualizamos el contacto con el ID del taller
         await contactService.updateContact(
             contact._id as string,
@@ -130,21 +153,22 @@ export const createWorkshop = async (req: Request, res: Response) => {
                 workshopId: result._id,
             } as Contact
         );
+
         // Actualizamos el usuario en el workshopAdminProfile
         await userService.updateUser(
-            workshopAdmin?._id as unknown as string, 
+            workshopAdmin?._id as unknown as string,
             {
                 workshopAdminProfile: {
                     isWorkshopAdmin: true,
                     managedWorkshops: [result._id],
                 },
             } as User
-        )
+        );
         res.status(201).json(
             ResponseHandler.success(result, "taller y contacto creado exitosamente y contacto actualizado", 201)
         );
-        
         return;
+
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error("Error al crear taller:", error.message);

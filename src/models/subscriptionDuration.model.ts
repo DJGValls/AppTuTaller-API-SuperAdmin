@@ -17,14 +17,8 @@ const subscriptionDurationSchema = new mongoose.Schema<SubscriptionDuration>(
             type: Boolean,
             default: false,
         },
-        billingCycle: {
-            type: String,
-            enum: ["monthly", "quarterly", "yearly"],
-            required: true,
-        },
         expirationDate: {
             type: Date,
-            required: true,
         },
         deletedAt: Date,
         deletedBy: {

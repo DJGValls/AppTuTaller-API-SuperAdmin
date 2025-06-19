@@ -22,10 +22,6 @@ export const subscriptionDurationCreateSchema = z.object({
             required_error: "Recurring status is required",
         })
         .default(false),
-    billingCycle: z
-        .enum(["monthly", "quarterly", "yearly"], {
-            required_error: "Billing cycle is required",
-        }),
     expirationDate: z
         .string({
             required_error: "Expiration date is required",
@@ -33,5 +29,6 @@ export const subscriptionDurationCreateSchema = z.object({
         .transform((str) => new Date(str))
         .refine((date) => date > new Date(), {
             message: "Expiration date must be in the future",
-        }),
+        })
+        .optional(),
 });

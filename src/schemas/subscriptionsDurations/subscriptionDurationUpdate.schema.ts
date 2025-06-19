@@ -9,7 +9,21 @@ export const subscriptionDurationUpdateSchema = z.object({
         })
         .max(20, {
             message: "Title must be at most 20 characters long",
-        }),
+        })
+        .optional(),
+    durationInDays: z
+        .number({
+            required_error: "Duration in days is required",
+        })
+        .min(1, {
+            message: "Duration in days must be at least 1",
+        })
+        .optional(),
+    isRecurring: z
+        .boolean({
+            required_error: "Recurring status is required",
+        })
+        .default(false),
     expirationDate: z
         .string({
             required_error: "Expiration date is required",
@@ -17,7 +31,8 @@ export const subscriptionDurationUpdateSchema = z.object({
         .transform((str) => new Date(str))
         .refine((date) => date > new Date(), {
             message: "Expiration date must be in the future",
-        }),
+        })
+        .optional(),
     subscriptionDuration: z
         .array(
             z.string({
@@ -26,5 +41,6 @@ export const subscriptionDurationUpdateSchema = z.object({
         )
         .min(1, {
             message: "At least one subscription duration is required",
-        }),
+        })
+        .optional(),
 });

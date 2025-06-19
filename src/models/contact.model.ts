@@ -44,7 +44,6 @@ const contactSchema = new mongoose.Schema<Contact>(
         },
         cif: {
             type: String,
-            required: true,
         },
         deletedAt: Date,
         deletedBy: {

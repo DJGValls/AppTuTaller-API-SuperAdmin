@@ -5,8 +5,8 @@ export interface SubscriptionDuration extends Document {
     title: string;
     durationInDays: number;
     isRecurring: boolean;
-    billingCycle: "monthly" | "quarterly" | "yearly";
-    expirationDate: Date;
+    // billingCycle?: "monthly" | "quarterly" | "yearly";
+    expirationDate?: Date;
     deletedAt?: Date;
     deletedBy?: mongoose.Types.ObjectId;
 }

@@ -7,7 +7,7 @@ export interface Workshop extends Document {
     contact: mongoose.Types.ObjectId | Contact | unknown;
     status: ActivationStatus;
     paymentMethod?: mongoose.Types.ObjectId;
-    subscription: mongoose.Types.ObjectId;
+    subscription: mongoose.Types.ObjectId | unknown;
     workshopAdmin: mongoose.Types.ObjectId;
     employees?: mongoose.Types.ObjectId[];
     deletedAt?: Date;
