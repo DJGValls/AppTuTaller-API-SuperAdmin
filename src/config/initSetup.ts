@@ -229,9 +229,10 @@ export const createInitialSetup = async () => {
                 contact: contactWorkshopAdmin?._id,
                 userTypes: [UserTypesEnum.WORKSHOP_ADMIN],
                 roles: [workshopAdminRole?._id as unknown as Types.ObjectId],
-                permissions: ["users_read", "users_update", "users_create"],
+                permissions: ["workshops_read", "workshops_update", "users_update", "users_create"],
                 workshopAdminProfile: {
                     managedWorkshops: [],
+                    isWorkshopAdmin: true,
                 },
             } as unknown as User);
             // Empleados
@@ -241,11 +242,12 @@ export const createInitialSetup = async () => {
                 contact: contactEmployeeOne?._id,
                 userTypes: [UserTypesEnum.EMPLOYEE],
                 roles: [employeeRole?._id as unknown as Types.ObjectId],
-                permissions: ["users_read", "users_update"],
+                permissions: ["workshops_read", "users_update"],
                 employeeProfile: {
                     workshops: [],
                     category: "Mechanic",
                     speciality: "Engine",
+                    isEmployee: true,
                 },
             } as unknown as User);
             employeeTwo = await userService.createUser({
@@ -254,11 +256,12 @@ export const createInitialSetup = async () => {
                 contact: contactEmployeeOTwo?._id,
                 userTypes: [UserTypesEnum.EMPLOYEE],
                 roles: [employeeRole?._id as unknown as Types.ObjectId],
-                permissions: ["users_read", "users_update"],
+                permissions: ["workshops_read", "users_update"],
                 employeeProfile: {
                     workshops: [],
                     category: "Electrician",
                     speciality: "Electronics",
+                    isEmployee: true,
                 },
             } as unknown as User);
             // Clientes
@@ -268,9 +271,10 @@ export const createInitialSetup = async () => {
                 contact: contactClientOne?._id,
                 userTypes: [UserTypesEnum.CLIENT],
                 roles: [clientRole?._id as unknown as Types.ObjectId],
-                permissions: ["users_read", "users_update"],
+                permissions: ["workshops_read", "users_update"],
                 clientProfile: {
                     preferredWorkshops: [],
+                    isClient: true,
                 },
             } as unknown as User);
             clientTwo = await userService.createUser({
@@ -279,9 +283,10 @@ export const createInitialSetup = async () => {
                 contact: contactClientTwo?._id,
                 userTypes: [UserTypesEnum.CLIENT],
                 roles: [clientRole?._id as unknown as Types.ObjectId],
-                permissions: ["users_read", "users_update"],
+                permissions: ["workshops_read", "users_update"],
                 clientProfile: {
                     preferredWorkshops: [],
+                    isClient: true,
                 },
             } as unknown as User);
             // Actualizar contactos con los usuarios

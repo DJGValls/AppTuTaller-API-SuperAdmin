@@ -2,7 +2,7 @@ import { z } from "zod";
 import mongoose from "mongoose";
 import { UserTypesEnum } from "enums/UserTypes.enums";
 import { UserModel } from "models/user.model";
-import { RolesModel } from "models/roles.model";
+import { contactCreateSchema } from "schemas/contacts/contactCreate.schema";
 export const userCreateSchema = z
     .object({
         // Campos básicos del usuario
@@ -44,55 +44,12 @@ export const userCreateSchema = z
                 .refine((val) => mongoose.Types.ObjectId.isValid(val), {
                     message: "Invalid Contact ID format",
                 }),
-            z.object({
-                name: z
-                    .string({
-                        required_error: "Contact name is required",
-                    })
-                    .min(2, {
-                        message: "Name must be at least 2 characters long",
-                    }),
-                surname: z
-                    .string({
-                        required_error: "Contact surname is required",
-                    })
-                    .min(2, {
-                        message: "Surname must be at least 2 characters long",
-                    }),
-                phone: z
-                    .string({
-                        required_error: "Contact phone is required",
-                    })
-                    .min(9, {
-                        message: "Phone must be at least 9 characters long",
-                    }),
-                address: z
-                    .string({
-                        required_error: "Contact address is required",
-                    })
-                    .min(5, {
-                        message: "Address must be at least 5 characters long",
-                    }),
-                state: z.string({
-                    required_error: "Contact state is required",
-                }),
-                city: z.string({
-                    required_error: "Contact city is required",
-                }),
-                postalCode: z.string({
-                    required_error: "Contact postal code is required",
-                }),
-                country: z.string({
-                    required_error: "Contact country is required",
-                }),
-            }),
+            contactCreateSchema.omit({ userId: true, workshopId: true }),
         ]),
         // Tipos de usuario y roles
-        userTypes: z
-            .array(z.nativeEnum(UserTypesEnum))
-            .refine((types) => types.length > 0, {
-                message: "At least one user type is required",
-            }),
+        userTypes: z.array(z.nativeEnum(UserTypesEnum)).refine((types) => types.length > 0, {
+            message: "At least one user type is required",
+        }),
         roles: z
             .array(
                 z.string({
@@ -113,7 +70,7 @@ export const userCreateSchema = z
                         })
                     )
                     .optional(),
-                    isWorkshopAdmin: z.boolean().optional(),
+                isWorkshopAdmin: z.boolean().optional(),
             })
             .optional(),
         employeeProfile: z
@@ -133,12 +90,12 @@ export const userCreateSchema = z
         clientProfile: z
             .object({
                 preferredWorkshops: z
-                .array(
-                    z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
-                        message: "Invalid Workshop ID format",
-                    })
-                )
-                .optional(),
+                    .array(
+                        z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+                            message: "Invalid Workshop ID format",
+                        })
+                    )
+                    .optional(),
                 isClient: z.boolean().optional(),
             })
             .optional(),
@@ -158,7 +115,7 @@ export const userCreateSchema = z
             }
             // Para clientes, establecer perfil por defecto si no se proporciona
             if (hasClient && !data.clientProfile) {
-                return false
+                return false;
             }
             return true;
         },

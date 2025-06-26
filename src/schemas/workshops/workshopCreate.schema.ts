@@ -49,4 +49,12 @@ export const workshopCreateSchema = z.object({
             })
         )
         .optional(),
+
+    clients: z
+        .array(
+            z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+                message: "Invalid Employee ID format",
+            })
+        )
+        .optional(),
 });

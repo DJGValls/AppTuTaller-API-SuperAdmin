@@ -39,8 +39,16 @@ export const workshopUpdateSchema = z.object({
             message: "Invalid Workshop Admin ID format",
         })
         .optional(),
-        
+
     employees: z
+        .array(
+            z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+                message: "Invalid Employee ID format",
+            })
+        )
+        .optional(),
+
+    clients: z
         .array(
             z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
                 message: "Invalid Employee ID format",

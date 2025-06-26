@@ -15,6 +15,9 @@ import { ContactService } from "services/contactService";
 import { InterfaceRolesRepository, Roles } from "types/RolesTypes";
 import { RolesRepository } from "repositories/rolesRepositories";
 import { RolesService } from "services/RolesService";
+import { InterfaceWorkshopRepository, Workshop } from "types/WorkshopTypes";
+import { WorkshopRepository } from "repositories/workshopRepositories";
+import { WorkshopService } from "services/workshopService";
 
 const userRepository: InterfaceUserRepository = new UserRepository();
 const userService = new UserService(userRepository);
@@ -22,8 +25,8 @@ const contactRepository: InterfaceContactRepository = new ContactRepository();
 const contactService = new ContactService(contactRepository);
 const rolesRepository: InterfaceRolesRepository = new RolesRepository();
 const rolesService = new RolesService(rolesRepository);
-
-
+const workshopRepository: InterfaceWorkshopRepository = new WorkshopRepository();
+const workshopService = new WorkshopService(workshopRepository);
 
 export const findUsers = async (req: Request, res: Response) => {
     try {
@@ -119,9 +122,7 @@ export const createUser = async (req: Request, res: Response) => {
         }
 
         // Obtener los roles y sus permisos
-        const roles = await Promise.all(
-            userData.roles.map(roleId => rolesService.findRolesById(roleId.toString()))
-        );
+        const roles = await Promise.all(userData.roles.map((roleId) => rolesService.findRolesById(roleId.toString())));
         // Filtrar roles nulos y obtener los permisos únicos
         const validRoles = roles.filter((role): role is Roles => role !== null);
         const allPermissions = validRoles.reduce((permissions: string[], role) => {
@@ -249,6 +250,57 @@ export const restoreUser = async (req: Request, res: Response) => {
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error("Error al restaurar usuario:", error.message);
+            res.status(500).json(ResponseHandler.error(error.message));
+            return;
+        } else if (error instanceof mongoose.Error) {
+            res.status(500).json(ResponseHandler.handleMongooseError(error));
+            return;
+        } else {
+            console.error("Error desconocido:", error);
+            res.status(500).json(ResponseHandler.internalServerError(500));
+            return;
+        }
+    }
+};
+
+export const subscribeWorkshop = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.id;
+        const workshopId = req.body.workshopId;
+
+        // Primero obtenemos el usuario para verificar si existe y obtener su contacto
+        const user = await userService.findUserById(userId);
+        if (!user) {
+            res.status(404).json(ResponseHandler.notFound("Usuario no encontrado", 404));
+            return;
+        }
+        const workshop = await workshopService.findWorkshopById(workshopId);
+        if (!workshop) {
+            res.status(404).json(ResponseHandler.notFound("Taller no encontrado", 404));
+            return;
+        }
+        const userUpdated = await userService.updateUser(user._id as string, {
+            clientProfile: {
+                preferredWorkshops: workshop._id,
+            },
+        } as User);
+        if (!userUpdated) {
+            res.status(500).json(ResponseHandler.error("Error al inscribir taller en el usuario"));
+            return;
+        }
+        const updatedWorkshop = await workshopService.updateWorkshop(workshop._id as string, {
+            clients: user._id,
+        } as Workshop);
+        if (!updatedWorkshop) {
+            res.status(500).json(ResponseHandler.error("Error al inscribir usuario en el taller"));
+            return;
+        }
+        
+        res.status(200).json(ResponseHandler.success(userUpdated, "Taller inscrito exitosamente"));
+
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error al inscribir usuario en el taller:", error.message);
             res.status(500).json(ResponseHandler.error(error.message));
             return;
         } else if (error instanceof mongoose.Error) {

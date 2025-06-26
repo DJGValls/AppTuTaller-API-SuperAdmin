@@ -38,6 +38,10 @@ const workshopSchema = new mongoose.Schema<Workshop>(
             type: Schema.Types.ObjectId,
             ref: "Users",
         }],
+        clients: [{
+            type: Schema.Types.ObjectId,
+            ref: "Users",
+        }],
         deletedAt: Date,
         deletedBy: {
             type: Schema.Types.ObjectId,

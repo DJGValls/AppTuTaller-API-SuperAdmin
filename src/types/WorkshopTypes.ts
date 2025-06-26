@@ -10,6 +10,7 @@ export interface Workshop extends Document {
     subscription: mongoose.Types.ObjectId | unknown;
     workshopAdmin: mongoose.Types.ObjectId;
     employees?: mongoose.Types.ObjectId[];
+    clients?: mongoose.Types.ObjectId[];
     deletedAt?: Date;
     deletedBy?: mongoose.Types.ObjectId;
 }
