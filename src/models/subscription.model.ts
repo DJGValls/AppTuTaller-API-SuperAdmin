@@ -8,6 +8,7 @@ const subscriptionSchema = new mongoose.Schema<Subscription>(
             type: String,
             required: true,
             unique: true,
+            index: true
         },
         maxEmployees:{
             type: Number,

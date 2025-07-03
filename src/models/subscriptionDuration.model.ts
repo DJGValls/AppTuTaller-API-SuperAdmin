@@ -7,6 +7,7 @@ const subscriptionDurationSchema = new mongoose.Schema<SubscriptionDuration>(
             type: String,
             required: true,
             unique: true,
+            inde: true
         },
         durationInDays: {
             type: Number,

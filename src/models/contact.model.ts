@@ -1,3 +1,4 @@
+import { truncates } from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 import { Contact } from "types/ContactTypes";
 const contactSchema = new mongoose.Schema<Contact>(
@@ -13,6 +14,7 @@ const contactSchema = new mongoose.Schema<Contact>(
         name: {
             type: String,
             required: true,
+            index: true
         },
         surname: {
             type: String,

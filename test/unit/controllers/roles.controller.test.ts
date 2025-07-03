@@ -4,8 +4,31 @@ import { RolesService } from "../../../src/services/RolesService";
 import { ResponseHandler } from "../../../src/utils/ResponseHandler";
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import mongoose from "mongoose";
+
 // Mock del servicio
 jest.mock("services/RolesService");
+
+// Mock de los query builders
+jest.mock("utils/queryBuilders/CustomSortsBuilder", () => ({
+    sortsBuilder: jest.fn(() => ({}))
+}));
+jest.mock("utils/queryBuilders/CustomPopulateBuilder", () => ({
+    populateBuilder: jest.fn(() => ({}))
+}));
+jest.mock("utils/queryBuilders/CustomFilterBuilder", () => ({
+    filterBuilder: jest.fn(() => ({}))
+}));
+jest.mock("utils/queryBuilders/CustomPaginationBuilder", () => ({
+    paginationBuilder: jest.fn(() => ({
+        total: 1,
+        page: 1,
+        perPage: 10,
+        totalPages: 1,
+        prevPage: null,
+        nextPage: null
+    }))
+}));
+
 describe("RolesController", () => {
     let mockRequest: Partial<Request>;
     let mockResponse: Partial<Response>;
@@ -30,10 +53,23 @@ describe("RolesController", () => {
         it("debería retornar roles exitosamente", async () => {
             const mockRoles = [{ _id: "1", name: "admin" }];
             (RolesService.prototype.findRoles as jest.Mock).mockImplementation(() => Promise.resolve(mockRoles));
+            (RolesService.prototype.countRoles as jest.Mock).mockImplementation(() => Promise.resolve(1));
+            
             await findRoles(mockRequest as Request, mockResponse as Response);
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(
-                ResponseHandler.success(mockRoles, "Roles encontrados exitosamente")
+                ResponseHandler.paginationSuccess(
+                    mockRoles,
+                    {
+                        total: 1,
+                        page: 1,
+                        perPage: 10,
+                        totalPages: 1,
+                        prevPage: null,
+                        nextPage: null
+                    },
+                    "Roles encontrados exitosamente"
+                )
             );
         });
         it("debería manejar el caso cuando no hay roles", async () => {
@@ -41,7 +77,7 @@ describe("RolesController", () => {
             await findRoles(mockRequest as Request, mockResponse as Response);
             expect(mockResponse.status).toHaveBeenCalledWith(404);
             expect(mockResponse.json).toHaveBeenCalledWith(
-                ResponseHandler.notFound("No se encontraron roles", 404)
+                ResponseHandler.notFound("Roles no encontrados", 404)
             );
         });
     });

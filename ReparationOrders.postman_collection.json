@@ -1,0 +1,372 @@
+{
+	"info": {
+		"_postman_id": "d8a6d52f-e45c-4d42-a2eb-2eaa7b1f5c1f",
+		"name": "TuTaller - Reparation Orders",
+		"description": "A collection for testing all ReparationOrders endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"token\", jsonData.data.token);",
+									"pm.environment.set(\"userId\", jsonData.data.user.id);",
+									"",
+									"// Hacer una petición para obtener workshops y guardar el primer workshop_id",
+									"pm.sendRequest({",
+									"    url: pm.environment.get(\"BASE_URL\") + \"/workshops\",",
+									"    method: 'GET',",
+									"    header: {",
+									"        'Authorization': 'Bearer ' + jsonData.data.token",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.log('Error getting workshops:', err);",
+									"    } else {",
+									"        var workshopsData = res.json();",
+									"        if (workshopsData && workshopsData.data && Array.isArray(workshopsData.data) && workshopsData.data.length > 0) {",
+									"            pm.environment.set(\"workshop_id\", workshopsData.data[0]._id);",
+									"            console.log(\"Guardado workshop_id:\", workshopsData.data[0]._id);",
+									"        } else if (workshopsData && workshopsData.data && workshopsData.data.data && Array.isArray(workshopsData.data.data) && workshopsData.data.data.length > 0) {",
+									"            pm.environment.set(\"workshop_id\", workshopsData.data.data[0]._id);",
+									"            console.log(\"Guardado workshop_id:\", workshopsData.data.data[0]._id);",
+									"        } else {",
+									"            console.log(\"No se encontraron workshops\");",
+									"        }",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{userPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auth/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login to get the authentication token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for getting the token"
+		},
+		{
+			"name": "Reparation Orders",
+			"item": [
+				{
+					"name": "Get All Reparation Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData && jsonData.data && Array.isArray(jsonData.data) && jsonData.data.length > 0) {",
+									"    // Si hay órdenes de reparación, tomar la primera y guardar su ID",
+									"    pm.environment.set(\"reparationOrder_id\", jsonData.data[0]._id);",
+									"    console.log(\"Guardado reparationOrder_id:\", jsonData.data[0]._id);",
+									"} else if (jsonData && jsonData.data && jsonData.data.data && Array.isArray(jsonData.data.data) && jsonData.data.data.length > 0) {",
+									"    // En caso de respuesta paginada, los datos pueden estar en data.data",
+									"    pm.environment.set(\"reparationOrder_id\", jsonData.data.data[0]._id);",
+									"    console.log(\"Guardado reparationOrder_id:\", jsonData.data.data[0]._id);",
+									"} else {",
+									"    console.log(\"No se encontraron órdenes de reparación\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/reparationOrders?page=1&limit=10&sort=createdAt:desc",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reparationOrders"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								},
+								{
+									"key": "sort",
+									"value": "createdAt:desc",
+									"description": "Sort criteria"
+								},
+								{
+									"key": "filter",
+									"value": "status:pending",
+									"description": "Filter by status",
+									"disabled": true
+								},
+								{
+									"key": "populate",
+									"value": "workshop,reparationTasks",
+									"description": "Populate related entities",
+									"disabled": true
+								},
+								{
+									"key": "all",
+									"value": "true",
+									"description": "Get all records without pagination",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all reparation orders with pagination, sorting, and filtering options"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Reparation Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/reparationOrders/{{reparationOrder_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reparationOrders",
+								"{{reparationOrder_id}}"
+							]
+						},
+						"description": "Get a specific reparation order by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Reparation Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData && jsonData.data && jsonData.data._id) {",
+									"    pm.environment.set(\"reparationOrder_id\", jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Reparación de frenos y cambio de aceite\",\n    \"description\": \"Reparación completa de frenos y cambio de aceite del vehículo\",\n    \"workshop\": \"{{workshop_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reparationOrders",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reparationOrders"
+							]
+						},
+						"description": "Create a new reparation order"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Reparation Order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Reparación de frenos, cambio de aceite y alineación\",\n    \"description\": \"Reparación completa de frenos, cambio de aceite y alineación del vehículo\",\n    \"workshop\": \"{{workshop_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reparationOrders/{{reparationOrder_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reparationOrders",
+								"{{reparationOrder_id}}"
+							]
+						},
+						"description": "Update an existing reparation order"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Reparation Order",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/reparationOrders/{{reparationOrder_id}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reparationOrders",
+								"{{reparationOrder_id}}"
+							]
+						},
+						"description": "Soft delete a reparation order"
+					},
+					"response": []
+				},
+				{
+					"name": "Restore Reparation Order",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/reparationOrders/{{reparationOrder_id}}/restore",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reparationOrders",
+								"{{reparationOrder_id}}",
+								"restore"
+							]
+						},
+						"description": "Restore a previously deleted reparation order"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD operations for reparation orders"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "userEmail",
+			"value": "admin@tutaller.com",
+			"type": "string"
+		},
+		{
+			"key": "userPassword",
+			"value": "yourPassword",
+			"type": "string"
+		},
+		{
+			"key": "reparationOrder_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "workshop_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -4,8 +4,31 @@ import { SubscriptionService } from "../../../src/services/subscriptionService";
 import { ResponseHandler } from "../../../src/utils/ResponseHandler";
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import mongoose from "mongoose";
+
 // Mock del servicio
 jest.mock("services/subscriptionService");
+
+// Mock de los query builders
+jest.mock("utils/queryBuilders/CustomSortsBuilder", () => ({
+    sortsBuilder: jest.fn(() => ({}))
+}));
+jest.mock("utils/queryBuilders/CustomPopulateBuilder", () => ({
+    populateBuilder: jest.fn(() => ({}))
+}));
+jest.mock("utils/queryBuilders/CustomFilterBuilder", () => ({
+    filterBuilder: jest.fn(() => ({}))
+}));
+jest.mock("utils/queryBuilders/CustomPaginationBuilder", () => ({
+    paginationBuilder: jest.fn(() => ({
+        total: 1,
+        page: 1,
+        perPage: 10,
+        totalPages: 1,
+        prevPage: null,
+        nextPage: null
+    }))
+}));
+
 describe("SubscriptionController", () => {
     let mockRequest: Partial<Request>;
     let mockResponse: Partial<Response>;
@@ -34,9 +57,18 @@ describe("SubscriptionController", () => {
             await findSubscriptions(mockRequest as Request, mockResponse as Response);
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    success: true, mockSubscriptions
-                })
+                ResponseHandler.paginationSuccess(
+                    mockSubscriptions,
+                    {
+                        total: 1,
+                        page: 1,
+                        perPage: 10,
+                        totalPages: 1,
+                        prevPage: null,
+                        nextPage: null
+                    },
+                    "Suscripciones encontradas exitosamente"
+                )
             );
         });
         it("debería manejar el caso cuando no hay suscripciones", async () => {
@@ -115,7 +147,7 @@ describe("SubscriptionController", () => {
             
             expect(mockResponse.status).toHaveBeenCalledWith(400);
             expect(mockResponse.json).toHaveBeenCalledWith(
-                ResponseHandler.handleMongooseError(validationError)
+                ResponseHandler.badRequest("Validation failed", 400)
             );
         });
     });

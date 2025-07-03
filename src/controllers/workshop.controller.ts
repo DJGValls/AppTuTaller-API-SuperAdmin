@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ResponseHandler } from "utils/ResponseHandler";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 import { sortsBuilder } from "utils/queryBuilders/CustomSortsBuilder";
 import { populateBuilder } from "utils/queryBuilders/CustomPopulateBuilder";
 import { filterBuilder } from "utils/queryBuilders/CustomFilterBuilder";

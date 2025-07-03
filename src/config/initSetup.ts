@@ -1,20 +1,27 @@
 import { UserTypesEnum } from "enums/UserTypes.enums";
 import { Types } from "mongoose";
 import { ContactRepository } from "repositories/contactRepositories";
+import { ReparationOrderRepository } from "repositories/reparationOrderRepositories";
 import { RolesRepository } from "repositories/rolesRepositories";
 import { SubscriptionDurationRepository } from "repositories/subscriptionDurationRepositories";
 import { SubscriptionRepository } from "repositories/subscriptionRepositories";
 import { UserRepository } from "repositories/userRepositories";
+import { WorkshopRepository } from "repositories/workshopRepositories";
 import { ContactService } from "services/contactService";
+import { ReparationOrderService } from "services/reparationOrderService";
 import { RolesService } from "services/RolesService";
 import { SubscriptionDurationService } from "services/subscriptionDurationService";
 import { SubscriptionService } from "services/subscriptionService";
 import { UserService } from "services/userService";
+import { WorkshopService } from "services/workshopService";
 import { Contact } from "types/ContactTypes";
+import { ReparationOrder } from "types/ReparationOrderTypes";
 import { Roles } from "types/RolesTypes";
 import { SubscriptionDuration } from "types/SubscriptionsDurationTypes";
 import { Subscription } from "types/SubscriptionsTypes";
 import { User } from "types/UserTypes";
+import { Workshop } from "types/WorkshopTypes";
+import { ActivationStatus } from "enums/StatusMethods.enum";
 const rolesRepository = new RolesRepository();
 const rolesService = new RolesService(rolesRepository);
 const userRepository = new UserRepository();
@@ -25,6 +32,10 @@ const subscriptionRepository = new SubscriptionRepository();
 const subscriptionService = new SubscriptionService(subscriptionRepository);
 const subscriptionDurationRepository = new SubscriptionDurationRepository();
 const subscriptionDurationService = new SubscriptionDurationService(subscriptionDurationRepository);
+const workshopRepository = new WorkshopRepository();
+const workshopService = new WorkshopService(workshopRepository);
+const reparationOrderRepository = new ReparationOrderRepository();
+const reparationOrderService = new ReparationOrderService(reparationOrderRepository);
 
 export const createInitialSetup = async () => {
     try {
@@ -34,6 +45,8 @@ export const createInitialSetup = async () => {
         const contacts = await contactService.findContacts();
         const subscriptionDurations = await subscriptionDurationService.findSubscriptionDurations();
         const subscriptions = await subscriptionService.findSubscriptions()
+        const workshops = await workshopService.findWorkshops();
+        const reparationOrders = await reparationOrderService.findReparationOrders();
 
         let superAdminRole: Roles | undefined;
         let workshopAdminRole: Roles | undefined;
@@ -63,6 +76,11 @@ export const createInitialSetup = async () => {
         let basic: Subscription;
         let pro: Subscription;
         let premium: Subscription;
+
+        let workshop: Workshop;
+
+        let reparationOrderOne: ReparationOrder;
+        let reparationOrderTwo: ReparationOrder;
 
         // Crear roles iniciales
         if (roles.length === 0) {
@@ -319,8 +337,7 @@ export const createInitialSetup = async () => {
                 {
                     userId: clientOne._id,
                 } as Contact
-            );
-            await contactService.updateContact(
+            );            await contactService.updateContact(
                 contactClientTwo?._id as string,
                 {
                     userId: clientTwo._id,
@@ -328,10 +345,128 @@ export const createInitialSetup = async () => {
             );
         }
 
-        
-        
-
         // Crear talleres
+        if (workshops.length === 0 && users.length > 0 && subscriptions.length > 0) {
+            // Obtener referencias a los usuarios y suscripciones creados
+            const existingUsers = await userService.findUsers();
+            const existingSubscriptions = await subscriptionService.findSubscriptions();
+            
+            const workshopAdminUser = existingUsers.find(user => user.email === "workshopadmin@tutaller.com");
+            const employeeOneUser = existingUsers.find(user => user.email === "employee1@tutaller.com");
+            const employeeTwoUser = existingUsers.find(user => user.email === "employee2@tutaller.com");
+            const clientOneUser = existingUsers.find(user => user.email === "client1@tutaller.com");
+            const clientTwoUser = existingUsers.find(user => user.email === "client2@tutaller.com");
+            const freeDemoSub = existingSubscriptions.find(sub => sub.title === "FREE_DEMO");
+
+            if (workshopAdminUser && freeDemoSub) {
+                // Crear contacto para el taller
+                const contactWorkshop = await contactService.createContact({
+                    name: "TuTaller",
+                    surname: "Principal",
+                    phone: "555-0123",
+                    address: "Calle Principal 456",
+                    state: "Estado Principal",
+                    city: "Ciudad Principal",
+                    postalCode: "67890",
+                    country: "País Principal",
+                } as Contact);
+
+                // Crear el workshop
+                workshop = await workshopService.createWorkshop({
+                    name: "TuTaller Principal",
+                    contact: contactWorkshop?._id,
+                    status: ActivationStatus.ACTIVE,
+                    subscription: freeDemoSub._id,
+                    workshopAdmin: workshopAdminUser._id,
+                    employees: employeeOneUser && employeeTwoUser ? [employeeOneUser._id, employeeTwoUser._id] : [],
+                    clients: clientOneUser && clientTwoUser ? [clientOneUser._id, clientTwoUser._id] : [],
+                } as Workshop);
+
+                // Actualizar el contacto del workshop con el workshop ID
+                await contactService.updateContact(
+                    contactWorkshop?._id as string,
+                    {
+                        workshopId: workshop._id,
+                    } as Contact
+                );
+
+                // Actualizar los usuarios para asignarlos al workshop
+                await userService.updateUser(workshopAdminUser._id as string, {
+                    workshopAdminProfile: {
+                        managedWorkshops: [workshop._id],
+                        isWorkshopAdmin: true,
+                    }
+                } as Partial<User>);
+
+                if (employeeOneUser) {
+                    await userService.updateUser(employeeOneUser._id as string, {
+                        employeeProfile: {
+                            workshops: [workshop._id],
+                            category: "Mechanic",
+                            speciality: "Engine",
+                            isEmployee: true,
+                        }
+                    } as Partial<User>);
+                }
+
+                if (employeeTwoUser) {
+                    await userService.updateUser(employeeTwoUser._id as string, {
+                        employeeProfile: {
+                            workshops: [workshop._id],
+                            category: "Electrician",
+                            speciality: "Electronics",
+                            isEmployee: true,
+                        }
+                    } as Partial<User>);
+                }
+
+                if (clientOneUser) {
+                    await userService.updateUser(clientOneUser._id as string, {
+                        clientProfile: {
+                            preferredWorkshops: [workshop._id],
+                            isClient: true,
+                        }
+                    } as Partial<User>);
+                }
+
+                if (clientTwoUser) {
+                    await userService.updateUser(clientTwoUser._id as string, {
+                        clientProfile: {
+                            preferredWorkshops: [workshop._id],
+                            isClient: true,
+                        }
+                    } as Partial<User>);
+                }
+
+                console.log("Workshop created successfully");
+            }
+        }
+
+        // Crear órdenes de reparación
+        if (reparationOrders.length === 0 && workshops.length > 0) {
+            // Obtener el workshop creado
+            const existingWorkshops = await workshopService.findWorkshops();
+            const workshopPrincipal = existingWorkshops.find(ws => ws.name === "TuTaller Principal");
+
+            if (workshopPrincipal) {
+                // Crear primera orden de reparación
+                reparationOrderOne = await reparationOrderService.createReparationOrder({
+                    name: "Reparación Completa Motor",
+                    description: "Reparación completa del motor incluyendo cambio de aceite, filtros y revisión general",
+                    workshop: workshopPrincipal._id,
+                } as ReparationOrder);
+
+                // Crear segunda orden de reparación
+                reparationOrderTwo = await reparationOrderService.createReparationOrder({
+                    name: "Mantenimiento Sistema Eléctrico",
+                    description: "Revisión y mantenimiento completo del sistema eléctrico del vehículo, incluye batería y alternador",
+                    workshop: workshopPrincipal._id,
+                } as ReparationOrder);
+
+                console.log("Reparation Orders created successfully");
+            }
+        }
+
         console.log("Initial setup completed successfully");
     } catch (error) {
         console.error("Error in initial setup:", error);

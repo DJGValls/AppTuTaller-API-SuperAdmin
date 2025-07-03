@@ -9,6 +9,7 @@ const workshopSchema = new mongoose.Schema<Workshop>(
             type: String,
             required: true,
             unique: true,
+            index: true
         },
         contact: {
             type: Schema.Types.ObjectId,
