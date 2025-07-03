@@ -20,7 +20,7 @@ const reparationOrderSchema = new mongoose.Schema<ReparationOrder>(
         reparationTasks: [
             {
                 type: Schema.Types.ObjectId,
-                ref: "ReparationTasks",
+                ref: "ReparationTask",
             },
         ],
         deletedAt: Date,

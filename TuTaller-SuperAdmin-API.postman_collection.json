@@ -1,0 +1,1424 @@
+{
+  "info": {
+    "name": "TuTaller SuperAdmin API",
+    "description": "Colección completa de endpoints para la API de TuTaller SuperAdmin con sistema de permisos robusto",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "roleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workshopId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contactId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reparationOrderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reparationTaskId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subscriptionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "durationId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Verifica que la API esté funcionando correctamente"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"User registered successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@tutaller.com\",\n  \"password\": \"AdminPassword123!\",\n  \"roles\": [\"675a1b2c3d4e5f6g7h8i9j0k\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Registra un nuevo usuario en el sistema"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const token = pm.response.text();",
+                  "    pm.collectionVariables.set(\"authToken\", token.replace(/\"/g, ''));",
+                  "    console.log(\"Token saved:\", token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@tutaller.com\",\n  \"password\": \"AdminPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Autentica un usuario y obtiene el token JWT"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Users Management",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&perPage=10&sort=name:asc&populate=roles&filter={\"isActive\":true}&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (opcional)"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10",
+                  "description": "Cantidad de elementos por página (opcional)"
+                },
+                {
+                  "key": "sort",
+                  "value": "name:asc",
+                  "description": "Ordenamiento: campo:dirección (ej: name:asc, createdAt:desc)"
+                },
+                {
+                  "key": "populate",
+                  "value": "roles",
+                  "description": "Campos a popular (ej: roles, workshops)"
+                },
+                {
+                  "key": "filter",
+                  "value": "{\"isActive\":true}",
+                  "description": "Filtros en formato JSON (ej: {\"isActive\":true, \"name\":\"John\"})"
+                },
+                {
+                  "key": "all",
+                  "value": "false",
+                  "description": "true para obtener todos sin paginación, false para paginado"
+                }
+              ]
+            },
+            "description": "Obtiene todos los usuarios del sistema con opciones de filtrado, ordenamiento y paginación"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Obtiene un usuario específico por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"User created successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const user = pm.response.json();",
+                  "    pm.collectionVariables.set(\"userId\", user.id || user._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"roles\": [\"675a1b2c3d4e5f6g7h8i9j0k\"],\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Crea un nuevo usuario con permisos validados"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Actualiza un usuario existente"
+          },
+          "response": []
+        },
+        {
+          "name": "Subscribe User to Workshop",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workshopId\": \"{{workshopId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/subscribe-workshop",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "subscribe-workshop"]
+            },
+            "description": "Suscribe un usuario a un taller"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Elimina un usuario (soft delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Restore User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "restore"]
+            },
+            "description": "Restaura un usuario eliminado"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Roles Management",
+      "item": [
+        {
+          "name": "Get All Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/roles?page=1&perPage=10&sort=name:asc&filter={\"isActive\":true}&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["roles"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (opcional)"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10",
+                  "description": "Cantidad de elementos por página (opcional)"
+                },
+                {
+                  "key": "sort",
+                  "value": "name:asc",
+                  "description": "Ordenamiento: campo:dirección (ej: name:asc, createdAt:desc)"
+                },
+                {
+                  "key": "filter",
+                  "value": "{\"isActive\":true}",
+                  "description": "Filtros en formato JSON (ej: {\"isActive\":true, \"name\":\"Admin\"})"
+                },
+                {
+                  "key": "all",
+                  "value": "false",
+                  "description": "true para obtener todos sin paginación, false para paginado"
+                }
+              ]
+            },
+            "description": "Obtiene todos los roles del sistema con opciones de filtrado, ordenamiento y paginación"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/roles/{{roleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["roles", "{{roleId}}"]
+            },
+            "description": "Obtiene un rol específico por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Role created successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const role = pm.response.json();",
+                  "    pm.collectionVariables.set(\"roleId\", role.id || role._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Workshop Manager\",\n  \"description\": \"Maneja talleres y ordenes de reparación\",\n  \"permissions\": [\n    \"MANAGE_WORKSHOPS\",\n    \"VIEW_WORKSHOPS\",\n    \"CREATE_REPARATION_ORDERS\",\n    \"VIEW_REPARATION_ORDERS\"\n  ],\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["roles"]
+            },
+            "description": "Crea un nuevo rol con permisos específicos"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Senior Workshop Manager\",\n  \"description\": \"Maneja talleres, ordenes y usuarios\",\n  \"permissions\": [\n    \"MANAGE_WORKSHOPS\",\n    \"VIEW_WORKSHOPS\",\n    \"CREATE_REPARATION_ORDERS\",\n    \"VIEW_REPARATION_ORDERS\",\n    \"VIEW_USERS\"\n  ],\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/roles/{{roleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["roles", "{{roleId}}"]
+            },
+            "description": "Actualiza un rol existente"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/roles/{{roleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["roles", "{{roleId}}"]
+            },
+            "description": "Elimina un rol del sistema"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏪 Workshops Management",
+      "item": [
+        {
+          "name": "Get All Workshops",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/wokshops?page=1&perPage=10&sort=name:asc&filter={\"isActive\":true}&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["wokshops"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (opcional)"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10",
+                  "description": "Cantidad de elementos por página (opcional)"
+                },
+                {
+                  "key": "sort",
+                  "value": "name:asc",
+                  "description": "Ordenamiento: campo:dirección (ej: name:asc, createdAt:desc)"
+                },
+                {
+                  "key": "filter",
+                  "value": "{\"isActive\":true}",
+                  "description": "Filtros en formato JSON (ej: {\"isActive\":true, \"name\":\"Taller Central\"})"
+                },
+                {
+                  "key": "all",
+                  "value": "false",
+                  "description": "true para obtener todos sin paginación, false para paginado"
+                }
+              ]
+            },
+            "description": "Obtiene todos los talleres del sistema con opciones de filtrado, ordenamiento y paginación"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Workshop by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/wokshops/{{workshopId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["wokshops", "{{workshopId}}"]
+            },
+            "description": "Obtiene un taller específico por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Workshop",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Workshop created successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const workshop = pm.response.json();",
+                  "    pm.collectionVariables.set(\"workshopId\", workshop.id || workshop._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Taller Mecánico Central\",\n  \"description\": \"Taller especializado en reparación de automóviles\",\n  \"address\": \"Av. Principal 123, Ciudad\",\n  \"phone\": \"+1234567890\",\n  \"email\": \"contacto@tallermecanicocentral.com\",\n  \"isActive\": true,\n  \"specialties\": [\"Mecánica general\", \"Electricidad automotriz\", \"Transmisiones\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wokshops",
+              "host": ["{{baseUrl}}"],
+              "path": ["wokshops"]
+            },
+            "description": "Crea un nuevo taller"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Workshop",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Taller Mecánico Central Premium\",\n  \"description\": \"Taller especializado en reparación de automóviles de alta gama\",\n  \"address\": \"Av. Principal 123, Ciudad\",\n  \"phone\": \"+1234567890\",\n  \"email\": \"premium@tallermecanicocentral.com\",\n  \"isActive\": true,\n  \"specialties\": [\"Mecánica general\", \"Electricidad automotriz\", \"Transmisiones\", \"Vehículos de lujo\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wokshops/{{workshopId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["wokshops", "{{workshopId}}"]
+            },
+            "description": "Actualiza un taller existente"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Workshop",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/wokshops/{{workshopId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["wokshops", "{{workshopId}}"]
+            },
+            "description": "Elimina un taller (soft delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Workshop",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/wokshops/{{workshopId}}/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["wokshops", "{{workshopId}}", "restore"]
+            },
+            "description": "Restaura un taller eliminado"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📞 Contacts Management",
+      "item": [
+        {
+          "name": "Get All Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contacts?page=1&perPage=10&sort=name:asc&filter={\"isActive\":true}&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["contacts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (opcional)"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10",
+                  "description": "Cantidad de elementos por página (opcional)"
+                },
+                {
+                  "key": "sort",
+                  "value": "name:asc",
+                  "description": "Ordenamiento: campo:dirección (ej: name:asc, createdAt:desc)"
+                },
+                {
+                  "key": "filter",
+                  "value": "{\"isActive\":true}",
+                  "description": "Filtros en formato JSON (ej: {\"isActive\":true, \"email\":\"maria@example.com\"})"
+                },
+                {
+                  "key": "all",
+                  "value": "false",
+                  "description": "true para obtener todos sin paginación, false para paginado"
+                }
+              ]
+            },
+            "description": "Obtiene todos los contactos del sistema con opciones de filtrado, ordenamiento y paginación"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Contact by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contacts/{{contactId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["contacts", "{{contactId}}"]
+            },
+            "description": "Obtiene un contacto específico por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Contact",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Contact created successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const contact = pm.response.json();",
+                  "    pm.collectionVariables.set(\"contactId\", contact.id || contact._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"María García\",\n  \"email\": \"maria.garcia@example.com\",\n  \"phone\": \"+1234567890\",\n  \"address\": \"Calle Secundaria 456, Ciudad\",\n  \"company\": \"Empresa ABC\",\n  \"notes\": \"Cliente preferencial\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contacts",
+              "host": ["{{baseUrl}}"],
+              "path": ["contacts"]
+            },
+            "description": "Crea un nuevo contacto"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Contact",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"María García Rodríguez\",\n  \"email\": \"maria.garcia.rodriguez@example.com\",\n  \"phone\": \"+1234567890\",\n  \"address\": \"Calle Secundaria 456, Ciudad\",\n  \"company\": \"Empresa ABC Premium\",\n  \"notes\": \"Cliente VIP\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contacts/{{contactId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["contacts", "{{contactId}}"]
+            },
+            "description": "Actualiza un contacto existente"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Contact",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contacts/{{contactId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["contacts", "{{contactId}}"]
+            },
+            "description": "Elimina un contacto (soft delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Contact",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contacts/{{contactId}}/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["contacts", "{{contactId}}", "restore"]
+            },
+            "description": "Restaura un contacto eliminado"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔧 Reparation Orders",
+      "item": [
+        {
+          "name": "Get All Reparation Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reparationOrders?page=1&perPage=10&sort=createdAt:desc&populate=clientId,workshopId&filter={\"status\":\"PENDING\"}&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationOrders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (opcional)"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10",
+                  "description": "Cantidad de elementos por página (opcional)"
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt:desc",
+                  "description": "Ordenamiento: campo:dirección (ej: createdAt:desc, priority:asc)"
+                },
+                {
+                  "key": "populate",
+                  "value": "clientId,workshopId",
+                  "description": "Campos a popular (ej: clientId, workshopId)"
+                },
+                {
+                  "key": "filter",
+                  "value": "{\"status\":\"PENDING\"}",
+                  "description": "Filtros en formato JSON (ej: {\"status\":\"PENDING\", \"priority\":\"HIGH\"})"
+                },
+                {
+                  "key": "all",
+                  "value": "false",
+                  "description": "true para obtener todos sin paginación, false para paginado"
+                }
+              ]
+            },
+            "description": "Obtiene todas las órdenes de reparación con opciones de filtrado, ordenamiento y paginación"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reparation Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reparationOrders/{{reparationOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationOrders", "{{reparationOrderId}}"]
+            },
+            "description": "Obtiene una orden de reparación específica por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Reparation Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Reparation Order created successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const order = pm.response.json();",
+                  "    pm.collectionVariables.set(\"reparationOrderId\", order.id || order._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": \"{{contactId}}\",\n  \"workshopId\": \"{{workshopId}}\",\n  \"vehicleInfo\": {\n    \"make\": \"Toyota\",\n    \"model\": \"Corolla\",\n    \"year\": 2020,\n    \"plate\": \"ABC-123\",\n    \"vin\": \"1234567890ABCDEFG\"\n  },\n  \"description\": \"Cambio de aceite y revisión general\",\n  \"status\": \"PENDING\",\n  \"estimatedCost\": 150.00,\n  \"estimatedDate\": \"2025-07-10T10:00:00Z\",\n  \"priority\": \"MEDIUM\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reparationOrders",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationOrders"]
+            },
+            "description": "Crea una nueva orden de reparación"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Reparation Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Cambio de aceite, revisión general y cambio de filtros\",\n  \"status\": \"IN_PROGRESS\",\n  \"estimatedCost\": 200.00,\n  \"actualCost\": 180.00,\n  \"priority\": \"HIGH\",\n  \"notes\": \"Se encontraron filtros adicionales que necesitan cambio\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reparationOrders/{{reparationOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationOrders", "{{reparationOrderId}}"]
+            },
+            "description": "Actualiza una orden de reparación existente"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Reparation Order",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reparationOrders/{{reparationOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationOrders", "{{reparationOrderId}}"]
+            },
+            "description": "Elimina una orden de reparación (soft delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Reparation Order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reparationOrders/{{reparationOrderId}}/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationOrders", "{{reparationOrderId}}", "restore"]
+            },
+            "description": "Restaura una orden de reparación eliminada"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "� Reparation Tasks",
+      "item": [
+        {
+          "name": "Get All Reparation Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reparationTasks?page=1&perPage=10&sort=createdAt:desc&populate=reparationOrderId&filter={\"status\":\"PENDING\"}&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationTasks"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (opcional)"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10",
+                  "description": "Cantidad de elementos por página (opcional)"
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt:desc",
+                  "description": "Ordenamiento: campo:dirección (ej: createdAt:desc, priority:asc)"
+                },
+                {
+                  "key": "populate",
+                  "value": "reparationOrderId",
+                  "description": "Campos a popular (ej: reparationOrderId)"
+                },
+                {
+                  "key": "filter",
+                  "value": "{\"status\":\"PENDING\"}",
+                  "description": "Filtros en formato JSON (ej: {\"status\":\"PENDING\", \"priority\":\"HIGH\"})"
+                },
+                {
+                  "key": "all",
+                  "value": "false",
+                  "description": "true para obtener todos sin paginación, false para paginado"
+                }
+              ]
+            },
+            "description": "Obtiene todas las tareas de reparación con opciones de filtrado, ordenamiento y paginación"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reparation Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reparationTasks/{{reparationTaskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationTasks", "{{reparationTaskId}}"]
+            },
+            "description": "Obtiene una tarea de reparación específica por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Reparation Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Reparation Task created successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const task = pm.response.json();",
+                  "    pm.collectionVariables.set(\"reparationTaskId\", task.id || task._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reparationOrderId\": \"{{reparationOrderId}}\",\n  \"title\": \"Cambio de aceite del motor\",\n  \"description\": \"Realizar cambio completo de aceite del motor incluyendo filtro\",\n  \"assignedTechnicianId\": \"{{userId}}\",\n  \"status\": \"PENDING\",\n  \"priority\": \"MEDIUM\",\n  \"estimatedDuration\": 60,\n  \"estimatedCost\": 50.00,\n  \"requiredParts\": [\n    {\n      \"name\": \"Aceite motor 5W-30\",\n      \"quantity\": 1,\n      \"unitCost\": 25.00\n    },\n    {\n      \"name\": \"Filtro de aceite\",\n      \"quantity\": 1,\n      \"unitCost\": 15.00\n    }\n  ],\n  \"instructions\": \"Verificar nivel actual antes del cambio. Usar aceite especificado por el fabricante.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reparationTasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationTasks"]
+            },
+            "description": "Crea una nueva tarea de reparación"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Reparation Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Cambio de aceite del motor - Completado\",\n  \"description\": \"Cambio completo de aceite del motor incluyendo filtro - Trabajo finalizado\",\n  \"status\": \"COMPLETED\",\n  \"priority\": \"MEDIUM\",\n  \"actualDuration\": 45,\n  \"actualCost\": 45.00,\n  \"completedAt\": \"2025-07-03T14:30:00Z\",\n  \"notes\": \"Tarea completada sin inconvenientes. Se utilizó aceite sintético como recomendó el cliente.\",\n  \"qualityCheckPassed\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reparationTasks/{{reparationTaskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationTasks", "{{reparationTaskId}}"]
+            },
+            "description": "Actualiza una tarea de reparación existente"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Reparation Task",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reparationTasks/{{reparationTaskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationTasks", "{{reparationTaskId}}"]
+            },
+            "description": "Elimina una tarea de reparación (soft delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Reparation Task",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reparationTasks/{{reparationTaskId}}/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["reparationTasks", "{{reparationTaskId}}", "restore"]
+            },
+            "description": "Restaura una tarea de reparación eliminada"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "�💳 Subscriptions Management",
+      "item": [
+        {
+          "name": "Get All Subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions?page=1&perPage=10&sort=name:asc&filter={\"isActive\":true}&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (opcional)"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10",
+                  "description": "Cantidad de elementos por página (opcional)"
+                },
+                {
+                  "key": "sort",
+                  "value": "name:asc",
+                  "description": "Ordenamiento: campo:dirección (ej: name:asc, price:desc)"
+                },
+                {
+                  "key": "filter",
+                  "value": "{\"isActive\":true}",
+                  "description": "Filtros en formato JSON (ej: {\"isActive\":true, \"currency\":\"USD\"})"
+                },
+                {
+                  "key": "all",
+                  "value": "false",
+                  "description": "true para obtener todos sin paginación, false para paginado"
+                }
+              ]
+            },
+            "description": "Obtiene todas las suscripciones del sistema con opciones de filtrado, ordenamiento y paginación"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subscription by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/{{subscriptionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "{{subscriptionId}}"]
+            },
+            "description": "Obtiene una suscripción específica por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Subscription",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Subscription created successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const subscription = pm.response.json();",
+                  "    pm.collectionVariables.set(\"subscriptionId\", subscription.id || subscription._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plan Premium\",\n  \"description\": \"Plan premium con todas las funcionalidades\",\n  \"price\": 99.99,\n  \"currency\": \"USD\",\n  \"features\": [\n    \"Talleres ilimitados\",\n    \"Órdenes de reparación ilimitadas\",\n    \"Soporte prioritario\",\n    \"Reportes avanzados\"\n  ],\n  \"isActive\": true,\n  \"trialDays\": 14\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions"]
+            },
+            "description": "Crea una nueva suscripción"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Subscription",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plan Premium Plus\",\n  \"description\": \"Plan premium plus con funcionalidades exclusivas\",\n  \"price\": 149.99,\n  \"currency\": \"USD\",\n  \"features\": [\n    \"Talleres ilimitados\",\n    \"Órdenes de reparación ilimitadas\",\n    \"Soporte 24/7\",\n    \"Reportes avanzados\",\n    \"API personalizada\",\n    \"Integración con sistemas externos\"\n  ],\n  \"isActive\": true,\n  \"trialDays\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/{{subscriptionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "{{subscriptionId}}"]
+            },
+            "description": "Actualiza una suscripción existente"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Subscription",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/{{subscriptionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "{{subscriptionId}}"]
+            },
+            "description": "Elimina una suscripción del sistema"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⏱️ Subscription Durations",
+      "item": [
+        {
+          "name": "Get All Subscription Durations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/durations?page=1&perPage=10&sort=months:asc&filter={\"isActive\":true}&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "durations"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (opcional)"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10",
+                  "description": "Cantidad de elementos por página (opcional)"
+                },
+                {
+                  "key": "sort",
+                  "value": "months:asc",
+                  "description": "Ordenamiento: campo:dirección (ej: months:asc, discountPercentage:desc)"
+                },
+                {
+                  "key": "filter",
+                  "value": "{\"isActive\":true}",
+                  "description": "Filtros en formato JSON (ej: {\"isActive\":true, \"months\":12})"
+                },
+                {
+                  "key": "all",
+                  "value": "false",
+                  "description": "true para obtener todos sin paginación, false para paginado"
+                }
+              ]
+            },
+            "description": "Obtiene todas las duraciones de suscripción con opciones de filtrado, ordenamiento y paginación"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subscription Duration by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/durations/{{durationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "durations", "{{durationId}}"]
+            },
+            "description": "Obtiene una duración de suscripción específica por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Subscription Duration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Subscription Duration created successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const duration = pm.response.json();",
+                  "    pm.collectionVariables.set(\"durationId\", duration.id || duration._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Anual\",\n  \"description\": \"Suscripción con duración de 12 meses\",\n  \"months\": 12,\n  \"discountPercentage\": 20,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/durations",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "durations"]
+            },
+            "description": "Crea una nueva duración de suscripción"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Subscription Duration",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Anual Premium\",\n  \"description\": \"Suscripción anual con descuento especial\",\n  \"months\": 12,\n  \"discountPercentage\": 25,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/durations/{{durationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "durations", "{{durationId}}"]
+            },
+            "description": "Actualiza una duración de suscripción existente"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Subscription Duration",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/durations/{{durationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "durations", "{{durationId}}"]
+            },
+            "description": "Elimina una duración de suscripción"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Configuración global para todas las peticiones",
+          "console.log('Preparando petición a:', pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Validaciones globales",
+          "pm.test('Response time is less than 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has valid JSON or is successful', function () {",
+          "    if (pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json')) {",
+          "        pm.response.to.be.json;",
+          "    } else {",
+          "        pm.response.to.be.ok;",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ]
+}

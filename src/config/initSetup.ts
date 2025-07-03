@@ -1,7 +1,9 @@
 import { UserTypesEnum } from "enums/UserTypes.enums";
+import { UserPermissionsEnum } from "enums/UserPermissions.enums";
 import { Types } from "mongoose";
 import { ContactRepository } from "repositories/contactRepositories";
 import { ReparationOrderRepository } from "repositories/reparationOrderRepositories";
+import { ReparationTaskRepository } from "repositories/reparationTaskRepositories";
 import { RolesRepository } from "repositories/rolesRepositories";
 import { SubscriptionDurationRepository } from "repositories/subscriptionDurationRepositories";
 import { SubscriptionRepository } from "repositories/subscriptionRepositories";
@@ -9,6 +11,7 @@ import { UserRepository } from "repositories/userRepositories";
 import { WorkshopRepository } from "repositories/workshopRepositories";
 import { ContactService } from "services/contactService";
 import { ReparationOrderService } from "services/reparationOrderService";
+import { ReparationTaskService } from "services/reparationTaskService";
 import { RolesService } from "services/RolesService";
 import { SubscriptionDurationService } from "services/subscriptionDurationService";
 import { SubscriptionService } from "services/subscriptionService";
@@ -16,6 +19,7 @@ import { UserService } from "services/userService";
 import { WorkshopService } from "services/workshopService";
 import { Contact } from "types/ContactTypes";
 import { ReparationOrder } from "types/ReparationOrderTypes";
+import { ReparationTask } from "types/ReparationTaskTypes";
 import { Roles } from "types/RolesTypes";
 import { SubscriptionDuration } from "types/SubscriptionsDurationTypes";
 import { Subscription } from "types/SubscriptionsTypes";
@@ -36,9 +40,12 @@ const workshopRepository = new WorkshopRepository();
 const workshopService = new WorkshopService(workshopRepository);
 const reparationOrderRepository = new ReparationOrderRepository();
 const reparationOrderService = new ReparationOrderService(reparationOrderRepository);
+const reparationTaskRepository = new ReparationTaskRepository();
+const reparationTaskService = new ReparationTaskService(reparationTaskRepository);
 
 export const createInitialSetup = async () => {
     try {
+        console.log("Starting initial setup...");
         // Verificar si ya existen roles
         const roles = await rolesService.findRoles();
         const users = await userService.findUsers();
@@ -47,6 +54,18 @@ export const createInitialSetup = async () => {
         const subscriptions = await subscriptionService.findSubscriptions()
         const workshops = await workshopService.findWorkshops();
         const reparationOrders = await reparationOrderService.findReparationOrders();
+        const reparationTasks = await reparationTaskService.findReparationTasks();
+
+        console.log("Current database state:", {
+            roles: roles.length,
+            users: users.length,
+            contacts: contacts.length,
+            subscriptionDurations: subscriptionDurations.length,
+            subscriptions: subscriptions.length,
+            workshops: workshops.length,
+            reparationOrders: reparationOrders.length,
+            reparationTasks: reparationTasks.length
+        });
 
         let superAdminRole: Roles | undefined;
         let workshopAdminRole: Roles | undefined;
@@ -82,33 +101,63 @@ export const createInitialSetup = async () => {
         let reparationOrderOne: ReparationOrder;
         let reparationOrderTwo: ReparationOrder;
 
+        let reparationTaskOne: ReparationTask;
+        let reparationTaskTwo: ReparationTask;
+        let reparationTaskThree: ReparationTask;
+
         // Crear roles iniciales
         if (roles.length === 0) {
+            console.log("Creating roles...");
             superAdminRole = await rolesService.createRoles({
                 name: "superAdmin",
-                permissions: ["admin_granted"],
+                permissions: [UserPermissionsEnum.ADMIN_GRANTED],
             } as Roles);
             workshopAdminRole = await rolesService.createRoles({
                 name: "workshopAdmin",
                 permissions: [
-                    "users_read",
-                    "users_update",
-                    "users_create",
-                    "subscription_read",
-                    "subscription_duration_read",
-                    "workshop_read",
-                    "workshop_update",
-                    "contact_update",
+                    UserPermissionsEnum.USERS_READ,
+                    UserPermissionsEnum.USERS_UPDATE,
+                    UserPermissionsEnum.USERS_CREATE,
+                    UserPermissionsEnum.WORKSHOPS_READ,
+                    UserPermissionsEnum.WORKSHOPS_UPDATE,
+                    UserPermissionsEnum.WORKSHOPS_MANAGE,
+                    UserPermissionsEnum.CONTACTS_UPDATE,
+                    UserPermissionsEnum.REPARATION_ORDERS_READ,
+                    UserPermissionsEnum.REPARATION_ORDERS_CREATE,
+                    UserPermissionsEnum.REPARATION_ORDERS_UPDATE,
+                    UserPermissionsEnum.REPARATION_ORDERS_DELETE,
+                    UserPermissionsEnum.REPARATION_TASKS_READ,
+                    UserPermissionsEnum.REPARATION_TASKS_CREATE,
+                    UserPermissionsEnum.REPARATION_TASKS_UPDATE,
+                    UserPermissionsEnum.REPARATION_TASKS_DELETE,
                 ],
             } as Roles);
             employeeRole = await rolesService.createRoles({
                 name: "employee",
-                permissions: ["users_read", "users_update", "contact_update"],
+                permissions: [
+                    UserPermissionsEnum.USERS_READ, 
+                    UserPermissionsEnum.USERS_UPDATE, 
+                    UserPermissionsEnum.CONTACTS_UPDATE,
+                    UserPermissionsEnum.REPARATION_ORDERS_READ,
+                    UserPermissionsEnum.REPARATION_ORDERS_UPDATE,
+                    UserPermissionsEnum.REPARATION_TASKS_READ,
+                    UserPermissionsEnum.REPARATION_TASKS_CREATE,
+                    UserPermissionsEnum.REPARATION_TASKS_UPDATE,
+                ],
             } as Roles);
             clientRole = await rolesService.createRoles({
                 name: "client",
-                permissions: ["users_read", "users_update", "contact_update"],
+                permissions: [
+                    UserPermissionsEnum.USERS_READ, 
+                    UserPermissionsEnum.USERS_UPDATE, 
+                    UserPermissionsEnum.CONTACTS_UPDATE,
+                    UserPermissionsEnum.REPARATION_ORDERS_READ,
+                    UserPermissionsEnum.REPARATION_TASKS_READ,
+                ],
             } as Roles);
+            console.log("Roles created successfully");
+        } else {
+            console.log(`Roles already exist: ${roles.length} found`);
         }
 
         // Crear Suscripciones
@@ -238,7 +287,7 @@ export const createInitialSetup = async () => {
                 contact: contactSuperAdmin?._id as Contact,
                 userTypes: [UserTypesEnum.SUPER_ADMIN],
                 roles: [superAdminRole?._id as unknown as Types.ObjectId],
-                permissions: ["admin_granted"],
+                permissions: [UserPermissionsEnum.ADMIN_GRANTED],
             } as User);
             // Workshop Admin
             workshopAdmin = await userService.createUser({
@@ -247,7 +296,12 @@ export const createInitialSetup = async () => {
                 contact: contactWorkshopAdmin?._id,
                 userTypes: [UserTypesEnum.WORKSHOP_ADMIN],
                 roles: [workshopAdminRole?._id as unknown as Types.ObjectId],
-                permissions: ["workshops_read", "workshops_update", "users_update", "users_create"],
+                permissions: [
+                    UserPermissionsEnum.WORKSHOPS_READ, 
+                    UserPermissionsEnum.WORKSHOPS_UPDATE, 
+                    UserPermissionsEnum.USERS_UPDATE, 
+                    UserPermissionsEnum.USERS_CREATE
+                ],
                 workshopAdminProfile: {
                     managedWorkshops: [],
                     isWorkshopAdmin: true,
@@ -260,7 +314,7 @@ export const createInitialSetup = async () => {
                 contact: contactEmployeeOne?._id,
                 userTypes: [UserTypesEnum.EMPLOYEE],
                 roles: [employeeRole?._id as unknown as Types.ObjectId],
-                permissions: ["workshops_read", "users_update"],
+                permissions: [UserPermissionsEnum.WORKSHOPS_READ, UserPermissionsEnum.USERS_UPDATE],
                 employeeProfile: {
                     workshops: [],
                     category: "Mechanic",
@@ -274,7 +328,7 @@ export const createInitialSetup = async () => {
                 contact: contactEmployeeOTwo?._id,
                 userTypes: [UserTypesEnum.EMPLOYEE],
                 roles: [employeeRole?._id as unknown as Types.ObjectId],
-                permissions: ["workshops_read", "users_update"],
+                permissions: [UserPermissionsEnum.WORKSHOPS_READ, UserPermissionsEnum.USERS_UPDATE],
                 employeeProfile: {
                     workshops: [],
                     category: "Electrician",
@@ -289,7 +343,7 @@ export const createInitialSetup = async () => {
                 contact: contactClientOne?._id,
                 userTypes: [UserTypesEnum.CLIENT],
                 roles: [clientRole?._id as unknown as Types.ObjectId],
-                permissions: ["workshops_read", "users_update"],
+                permissions: [UserPermissionsEnum.WORKSHOPS_READ, UserPermissionsEnum.USERS_UPDATE],
                 clientProfile: {
                     preferredWorkshops: [],
                     isClient: true,
@@ -301,7 +355,7 @@ export const createInitialSetup = async () => {
                 contact: contactClientTwo?._id,
                 userTypes: [UserTypesEnum.CLIENT],
                 roles: [clientRole?._id as unknown as Types.ObjectId],
-                permissions: ["workshops_read", "users_update"],
+                permissions: [UserPermissionsEnum.WORKSHOPS_READ, UserPermissionsEnum.USERS_UPDATE],
                 clientProfile: {
                     preferredWorkshops: [],
                     isClient: true,
@@ -346,10 +400,13 @@ export const createInitialSetup = async () => {
         }
 
         // Crear talleres
-        if (workshops.length === 0 && users.length > 0 && subscriptions.length > 0) {
+        if (workshops.length === 0) {
+            console.log("Creating workshops...");
             // Obtener referencias a los usuarios y suscripciones creados
             const existingUsers = await userService.findUsers();
             const existingSubscriptions = await subscriptionService.findSubscriptions();
+            
+            console.log(`Found ${existingUsers.length} users and ${existingSubscriptions.length} subscriptions`);
             
             const workshopAdminUser = existingUsers.find(user => user.email === "workshopadmin@tutaller.com");
             const employeeOneUser = existingUsers.find(user => user.email === "employee1@tutaller.com");
@@ -359,6 +416,7 @@ export const createInitialSetup = async () => {
             const freeDemoSub = existingSubscriptions.find(sub => sub.title === "FREE_DEMO");
 
             if (workshopAdminUser && freeDemoSub) {
+                console.log("Creating workshop with admin and subscription...");
                 // Crear contacto para el taller
                 const contactWorkshop = await contactService.createContact({
                     name: "TuTaller",
@@ -439,14 +497,24 @@ export const createInitialSetup = async () => {
                 }
 
                 console.log("Workshop created successfully");
+            } else {
+                console.log("Cannot create workshop - missing workshopAdmin or subscription", {
+                    hasWorkshopAdmin: !!workshopAdminUser,
+                    hasSubscription: !!freeDemoSub
+                });
             }
+        } else {
+            console.log(`Workshops already exist: ${workshops.length} found`);
         }
 
         // Crear órdenes de reparación
-        if (reparationOrders.length === 0 && workshops.length > 0) {
+        if (reparationOrders.length === 0) {
+            console.log("Creating reparation orders...");
             // Obtener el workshop creado
             const existingWorkshops = await workshopService.findWorkshops();
             const workshopPrincipal = existingWorkshops.find(ws => ws.name === "TuTaller Principal");
+            
+            console.log(`Found ${existingWorkshops.length} workshops`);
 
             if (workshopPrincipal) {
                 // Crear primera orden de reparación
@@ -464,7 +532,76 @@ export const createInitialSetup = async () => {
                 } as ReparationOrder);
 
                 console.log("Reparation Orders created successfully");
+            } else {
+                console.log("Cannot create reparation orders - workshop not found");
             }
+        } else {
+            console.log(`Reparation orders already exist: ${reparationOrders.length} found`);
+        }
+
+        // Crear tareas de reparación
+        if (reparationTasks.length === 0) {
+            console.log("Creating reparation tasks...");
+            // Obtener el workshop y las órdenes creadas
+            const existingWorkshops = await workshopService.findWorkshops();
+            const existingReparationOrders = await reparationOrderService.findReparationOrders();
+            
+            console.log(`Found ${existingWorkshops.length} workshops and ${existingReparationOrders.length} reparation orders`);
+            
+            const workshopPrincipal = existingWorkshops.find(ws => ws.name === "TuTaller Principal");
+            const motorOrder = existingReparationOrders.find(ro => ro.name === "Reparación Completa Motor");
+            const electricOrder = existingReparationOrders.find(ro => ro.name === "Mantenimiento Sistema Eléctrico");
+
+            if (workshopPrincipal && motorOrder && electricOrder) {
+                // Crear primera tarea de reparación
+                reparationTaskOne = await reparationTaskService.createReparationTask({
+                    name: "Cambio de Aceite",
+                    description: "Cambio completo de aceite del motor y filtro",
+                    reparationOrders: [motorOrder._id],
+                    status: "pending",
+                    workshop: workshopPrincipal._id,
+                } as ReparationTask);
+
+                // Crear segunda tarea de reparación
+                reparationTaskTwo = await reparationTaskService.createReparationTask({
+                    name: "Revisión de Batería",
+                    description: "Revisión completa del estado de la batería y terminales",
+                    reparationOrders: [electricOrder._id],
+                    status: "in_progress",
+                    startDate: new Date(),
+                    workshop: workshopPrincipal._id,
+                } as ReparationTask);
+
+                // Crear tercera tarea de reparación (compartida entre ambas órdenes)
+                reparationTaskThree = await reparationTaskService.createReparationTask({
+                    name: "Inspección General",
+                    description: "Inspección general del vehículo antes de iniciar trabajos",
+                    reparationOrders: [motorOrder._id, electricOrder._id],
+                    status: "completed",
+                    startDate: new Date(Date.now() - 86400000), // Ayer
+                    endDate: new Date(),
+                    workshop: workshopPrincipal._id,
+                } as ReparationTask);
+
+                // Actualizar las reparationOrders con las reparationTasks asociadas
+                await reparationOrderService.updateReparationOrder(motorOrder._id as string, {
+                    reparationTasks: [reparationTaskOne._id, reparationTaskThree._id]
+                } as Partial<ReparationOrder>);
+
+                await reparationOrderService.updateReparationOrder(electricOrder._id as string, {
+                    reparationTasks: [reparationTaskTwo._id, reparationTaskThree._id]
+                } as Partial<ReparationOrder>);
+
+                console.log("Reparation Tasks created successfully and associated with orders");
+            } else {
+                console.log("Cannot create reparation tasks - missing workshop or orders", {
+                    hasWorkshop: !!workshopPrincipal,
+                    hasMotorOrder: !!motorOrder,
+                    hasElectricOrder: !!electricOrder
+                });
+            }
+        } else {
+            console.log(`Reparation tasks already exist: ${reparationTasks.length} found`);
         }
 
         console.log("Initial setup completed successfully");

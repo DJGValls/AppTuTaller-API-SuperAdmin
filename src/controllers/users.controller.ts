@@ -105,6 +105,7 @@ export const createUser = async (req: Request, res: Response) => {
     try {
         let userData: User = req.body;
         let contact: Contact;
+        
         // Verificar si se proporcionó un ID de contacto o un objeto de contacto
         if (typeof req.body.contact === "string") {
             // Si es un string, buscar el contacto existente
@@ -121,31 +122,54 @@ export const createUser = async (req: Request, res: Response) => {
             userData.contact = newContact._id;
         }
 
-        // Obtener los roles y sus permisos
-        const roles = await Promise.all(userData.roles.map((roleId) => rolesService.findRolesById(roleId.toString())));
-        // Filtrar roles nulos y obtener los permisos únicos
+        // Validar y obtener los roles
+        const rolePromises = userData.roles.map((roleId) => rolesService.findRolesById(roleId.toString()));
+        const roles = await Promise.all(rolePromises);
+        
+        // Filtrar roles nulos
         const validRoles = roles.filter((role): role is Roles => role !== null);
-        const allPermissions = validRoles.reduce((permissions: string[], role) => {
-            return [...permissions, ...role.permissions];
-        }, []);
-        // Asignar permisos únicos al usuario
-        userData.permissions = [...new Set(allPermissions)];
+        
+        if (validRoles.length !== userData.roles.length) {
+            res.status(400).json(ResponseHandler.badRequest("Algunos roles no fueron encontrados", 400));
+            return;
+        }
 
-        // crear al usuario
-        const result = await userService.createUser(userData);
+        // Crear usuario con validación de permisos
+        const { user: result, warnings } = await userService.createUserWithPermissions(userData, validRoles);
+        
         if (!result) {
             res.status(400).json(ResponseHandler.badRequest("Error al crear el usuario", 400));
             return;
         }
-        // Actualizamos el contacto con el ID del usuario
+
+        // Actualizar el contacto con el ID del usuario
         await contactService.updateContact(
             contact._id as string,
             {
                 userId: result._id,
             } as Contact
         );
+
+        // Log de seguridad para auditoría
+        console.log(`Usuario creado: ${result.email} con permisos: ${result.permissions.join(', ')}`);
+        if (warnings.length > 0) {
+            console.warn(`Advertencias al crear usuario ${result.email}: ${warnings.join('; ')}`);
+        }
+
+        // Preparar respuesta
+        const response = {
+            user: result,
+            warnings: warnings.length > 0 ? warnings : undefined
+        };
+
         res.status(201).json(
-            ResponseHandler.success(result, "Usuario creado exitosamente y contacto actualizado", 201)
+            ResponseHandler.success(
+                response, 
+                warnings.length > 0 
+                    ? "Usuario creado exitosamente con advertencias" 
+                    : "Usuario creado exitosamente y contacto actualizado", 
+                201
+            )
         );
         return;
     } catch (error: unknown) {

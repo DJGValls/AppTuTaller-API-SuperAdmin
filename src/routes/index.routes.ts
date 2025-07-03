@@ -6,6 +6,7 @@ import subscriptionsRoutes from "./subscriptions.routes.ts";
 import wokshopsRoutes from "./wokshops.routes.ts";
 import contactsRoutes from "./contacts.routes.ts";
 import reparationOrdersRoutes from "./reparationOrders.routes.ts";
+import reparationTasksRoutes from "./reparationTasks.routes.ts";
 import { verifyToken } from "middlewares/auth.middleware.ts";
 
 const router = Router();
@@ -28,5 +29,7 @@ router.use("/wokshops", verifyToken, wokshopsRoutes);
 router.use("/contacts", verifyToken, contactsRoutes);
 // ReparationOrders routes
 router.use("/reparationOrders", verifyToken, reparationOrdersRoutes);
+// ReparationTasks routes
+router.use("/reparationTasks", verifyToken, reparationTasksRoutes);
 
 export default router;

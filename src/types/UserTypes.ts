@@ -48,4 +48,7 @@ export interface InterfaceUserService {
     updateUser(id: string, user: Partial<User>): Promise<User | null>;
     deleteUser(id: string, userId?: string): Promise<boolean>;
     restoreUser(id: string): Promise<User | null>;
+    countUsers(query?: Query): Promise<number>;
+    calculateUserPermissions(roles: any[]): Promise<{ permissions: string[], invalidPermissions: string[] }>;
+    createUserWithPermissions(userData: User, roles: any[]): Promise<{ user: User, warnings: string[] }>;
 }
