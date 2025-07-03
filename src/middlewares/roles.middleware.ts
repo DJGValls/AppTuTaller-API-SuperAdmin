@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { RolesRepository } from "repositories/rolesRepositories";
-import { RolesService } from "services/RolesService";
+import { RolesService } from "services/rolesService";
 import { InterfaceRolesRepository, Roles } from "types/RolesTypes";
 import { ResponseHandler } from "utils/ResponseHandler";
 
@@ -10,12 +10,18 @@ const rolesRepository: InterfaceRolesRepository = new RolesRepository();
 const rolesService = new RolesService(rolesRepository);
 
 export const checkRoles = async (req: Request, res: Response, next: NextFunction) => {
-    // Extraemos los roles del cuerpo de la petición
-    const userRoles: Roles[] = req.currentUser.roles ?? [];
+    // Verificamos que el usuario existe
+    if (!req.currentUser) {
+        res.status(401).json(ResponseHandler.unauthorized("Usuario no autorizado", 401));
+        return;
+    }
+    
+    // Extraemos los roles del usuario (después del populate, pueden ser objetos Roles)
+    const userRoles = req.currentUser.roles as any[] ?? [];
     
     // Validamos que "roles" sea un array no vacío; si está vacío, lo dejamos vacio para que genere el error de validacion"
     const roleNames = Array.isArray(userRoles) && userRoles.length !== 0 
-        ? userRoles.map(role => role.name) 
+        ? userRoles.map((role: any) => role.name || role) // Si es un objeto usa name, si es string usa el valor directo
         : [];
         
     try {

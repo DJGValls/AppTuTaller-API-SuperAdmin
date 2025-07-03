@@ -14,7 +14,7 @@ import { ContactRepository } from "repositories/contactRepositories";
 import { ContactService } from "services/contactService";
 import { InterfaceRolesRepository, Roles } from "types/RolesTypes";
 import { RolesRepository } from "repositories/rolesRepositories";
-import { RolesService } from "services/RolesService";
+import { RolesService } from "services/rolesService";
 import { InterfaceWorkshopRepository, Workshop } from "types/WorkshopTypes";
 import { WorkshopRepository } from "repositories/workshopRepositories";
 import { WorkshopService } from "services/workshopService";

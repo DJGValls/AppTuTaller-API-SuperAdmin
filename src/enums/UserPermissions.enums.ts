@@ -46,6 +46,27 @@ export enum UserPermissionsEnum {
     SUBSCRIPTIONS_UPDATE = "subscriptions_update",
     SUBSCRIPTIONS_DELETE = "subscriptions_delete",
     
+    // Permisos de Duraciones de Suscripción
+    SUBSCRIPTION_DURATIONS_READ = "subscription_durations_read",
+    SUBSCRIPTION_DURATIONS_CREATE = "subscription_durations_create",
+    SUBSCRIPTION_DURATIONS_UPDATE = "subscription_durations_update",
+    SUBSCRIPTION_DURATIONS_DELETE = "subscription_durations_delete",
+    
+    // Permisos de Citas (Appointments)
+    APPOINTMENTS_READ = "appointments_read",
+    APPOINTMENTS_CREATE = "appointments_create",
+    APPOINTMENTS_UPDATE = "appointments_update",
+    APPOINTMENTS_DELETE = "appointments_delete",
+    APPOINTMENTS_MANAGE = "appointments_manage", // confirmar, cancelar, iniciar, completar
+    APPOINTMENTS_VIEW_AVAILABILITY = "appointments_view_availability",
+    
+    // Permisos de Horarios de Taller (Workshop Schedules)
+    WORKSHOP_SCHEDULES_READ = "workshop_schedules_read",
+    WORKSHOP_SCHEDULES_CREATE = "workshop_schedules_create",
+    WORKSHOP_SCHEDULES_UPDATE = "workshop_schedules_update",
+    WORKSHOP_SCHEDULES_DELETE = "workshop_schedules_delete",
+    WORKSHOP_SCHEDULES_MANAGE = "workshop_schedules_manage",
+    
     // Permisos especiales
     VIEW_ALL_WORKSHOPS = "view_all_workshops",
     MANAGE_PAYMENTS = "manage_payments",

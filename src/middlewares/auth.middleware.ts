@@ -15,7 +15,12 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
     const token = req.headers.authorization?.replace(/^Bearer\s+/, "") as string;
     try {
         const verify = jwt.verify(token, jwtSecret) as User;
-        const getUser = await userService.findUserById(verify.id);
+        // Obtener el usuario con los roles populados
+        const users = await userService.findUsers(
+            { _id: verify.id }, 
+            { populate: ['roles'] }
+        );
+        const getUser = users[0];
         if (!getUser) {
             res.status(401).json(ResponseHandler.unauthorized("Usuario no encontrado", 401));
             return;
@@ -37,7 +42,7 @@ export const getPermissions = async (req: Request, res: Response, next: NextFunc
             return;
         }
         // Asignamos a 'roles' la información obtenida en currentUser.
-        const roles = currentUser.roles;
+        const roles = currentUser.roles as any[]; // Los roles están populados
 
         // Se extrae el primer segmento de la ruta (originalUrl) mediante una regex
         // Por ejemplo, si originalUrl es "/module/accion", currentModule tomará "module".

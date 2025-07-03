@@ -1,5 +1,5 @@
 import { RolesRepository } from "repositories/rolesRepositories";
-import { RolesService } from "services/RolesService";
+import { RolesService } from "services/rolesService";
 import { InterfaceRolesRepository, Roles } from "types/RolesTypes";
 import { Request, Response } from "express";
 import { ResponseHandler } from "utils/ResponseHandler";

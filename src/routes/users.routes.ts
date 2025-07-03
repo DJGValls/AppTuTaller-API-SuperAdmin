@@ -3,24 +3,33 @@ import { createUser, deleteUser, findUserById, findUsers, restoreUser, updateUse
 import { userCreateSchema } from "schemas/users/userCreate.schema";
 import { validate } from "middlewares/validate.middleware";
 import { checkRoles } from "middlewares/roles.middleware";
+import { requirePermissions } from "middlewares/permissions.middleware";
 import { getPermissions } from "middlewares/auth.middleware";
 import { userUpdateSchema } from "schemas/users/userUpdate.schema";
+import { UserPermissionsEnum } from "enums/UserPermissions.enums";
 
 const router = Router();
 
-router.get("/", getPermissions, findUsers);
+// Solo admins pueden ver todos los usuarios
+router.get("/", getPermissions, requirePermissions([UserPermissionsEnum.USERS_READ]), findUsers);
 
-router.get("/:id", getPermissions, findUserById);
+// Usuarios pueden ver su propio perfil, admins pueden ver cualquiera
+router.get("/:id", getPermissions, requirePermissions([UserPermissionsEnum.USERS_READ]), findUserById);
 
-router.post("/", validate(userCreateSchema), getPermissions, checkRoles, createUser);
+// Solo admins de taller pueden crear usuarios
+router.post("/", validate(userCreateSchema), getPermissions, requirePermissions([UserPermissionsEnum.USERS_CREATE]), createUser);
 
-router.put("/:id", validate(userUpdateSchema), getPermissions, updateUser);
+// Usuarios pueden actualizar su perfil, admins pueden actualizar cualquiera
+router.put("/:id", validate(userUpdateSchema), getPermissions, requirePermissions([UserPermissionsEnum.USERS_UPDATE]), updateUser);
 
-router.put("/:id/subscribe-workshop", getPermissions, subscribeWorkshop)
+// Solo admins pueden suscribir usuarios a talleres
+router.put("/:id/subscribe-workshop", getPermissions, requirePermissions([UserPermissionsEnum.USERS_UPDATE]), subscribeWorkshop)
 
-router.delete("/:id", getPermissions, deleteUser);
+// Solo admins pueden eliminar usuarios
+router.delete("/:id", getPermissions, requirePermissions([UserPermissionsEnum.USERS_DELETE]), deleteUser);
 
-router.get("/:id/restore", getPermissions, restoreUser);
+// Solo admins pueden restaurar usuarios
+router.get("/:id/restore", getPermissions, requirePermissions([UserPermissionsEnum.USERS_UPDATE]), restoreUser);
 
 
 export default router;

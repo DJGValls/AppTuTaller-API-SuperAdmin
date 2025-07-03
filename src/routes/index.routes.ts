@@ -1,13 +1,15 @@
 import { Router } from "express";
-import usersRoutes from "./users.routes.ts";
-import rolesRoutes from "./roles.routes.ts";
-import authRoutes from "./auth.routes.ts";
-import subscriptionsRoutes from "./subscriptions.routes.ts";
-import wokshopsRoutes from "./wokshops.routes.ts";
-import contactsRoutes from "./contacts.routes.ts";
-import reparationOrdersRoutes from "./reparationOrders.routes.ts";
-import reparationTasksRoutes from "./reparationTasks.routes.ts";
-import { verifyToken } from "middlewares/auth.middleware.ts";
+import usersRoutes from "./users.routes";
+import rolesRoutes from "./roles.routes";
+import authRoutes from "./auth.routes";
+import subscriptionsRoutes from "./subscriptions.routes";
+import wokshopsRoutes from "./wokshops.routes";
+import contactsRoutes from "./contacts.routes";
+import reparationOrdersRoutes from "./reparationOrders.routes";
+import reparationTasksRoutes from "./reparationTasks.routes";
+import appointmentsRoutes from "./appointments.routes";
+import workshopSchedulesRoutes from "./workshopSchedules.routes";
+import { verifyToken } from "middlewares/auth.middleware";
 
 const router = Router();
 
@@ -31,5 +33,9 @@ router.use("/contacts", verifyToken, contactsRoutes);
 router.use("/reparationOrders", verifyToken, reparationOrdersRoutes);
 // ReparationTasks routes
 router.use("/reparationTasks", verifyToken, reparationTasksRoutes);
+// Appointments routes
+router.use("/appointments", verifyToken, appointmentsRoutes);
+// Workshop Schedules routes
+router.use("/workshop-schedules", verifyToken, workshopSchedulesRoutes);
 
 export default router;

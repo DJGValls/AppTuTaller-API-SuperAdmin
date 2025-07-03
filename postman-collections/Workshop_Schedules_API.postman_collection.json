@@ -1,0 +1,417 @@
+{
+	"info": {
+		"_postman_id": "workshop-schedules-api-collection",
+		"name": "Workshop Schedules API",
+		"description": "Collection for testing Workshop Schedules endpoints with authentication and validation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api"
+		},
+		{
+			"key": "workshop_id",
+			"value": "676123456789012345678901"
+		},
+		{
+			"key": "schedule_id",
+			"value": "676987654321098765432109"
+		},
+		{
+			"key": "auth_token",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.token) {",
+									"        pm.collectionVariables.set('auth_token', response.data.token);",
+									"        console.log('Token saved:', response.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@tutaller.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Workshop Schedules CRUD",
+			"item": [
+				{
+					"name": "Get All Workshop Schedules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules?page=1&perPage=10&populate=workshop&sort=dayOfWeek:1",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								},
+								{
+									"key": "populate",
+									"value": "workshop"
+								},
+								{
+									"key": "sort",
+									"value": "dayOfWeek:1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Workshop Schedule by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/{{schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "{{schedule_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Schedules by Workshop",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/workshop/{{workshop_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "workshop", "{{workshop_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Workshop Schedule",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data._id) {",
+									"        pm.collectionVariables.set('schedule_id', response.data._id);",
+									"        console.log('Schedule ID saved:', response.data._id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"workshop\": \"{{workshop_id}}\",\n    \"dayOfWeek\": 1,\n    \"isOpen\": true,\n    \"openTime\": \"08:00\",\n    \"closeTime\": \"18:00\",\n    \"timeSlots\": [\n        {\n            \"startTime\": \"08:00\",\n            \"endTime\": \"09:00\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"09:00\",\n            \"endTime\": \"10:00\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"10:00\",\n            \"endTime\": \"11:00\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"14:00\",\n            \"endTime\": \"15:00\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"15:00\",\n            \"endTime\": \"16:00\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"16:00\",\n            \"endTime\": \"17:00\",\n            \"isAvailable\": true\n        }\n    ],\n    \"breakTimes\": [\n        {\n            \"startTime\": \"12:00\",\n            \"endTime\": \"14:00\",\n            \"reason\": \"Lunch Break\"\n        }\n    ],\n    \"maxConcurrentAppointments\": 3,\n    \"notes\": \"Monday schedule with lunch break\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules"]
+						}
+					}
+				},
+				{
+					"name": "Update Workshop Schedule",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"openTime\": \"07:30\",\n    \"closeTime\": \"19:00\",\n    \"maxConcurrentAppointments\": 4,\n    \"timeSlots\": [\n        {\n            \"startTime\": \"07:30\",\n            \"endTime\": \"08:30\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"08:30\",\n            \"endTime\": \"09:30\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"09:30\",\n            \"endTime\": \"10:30\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"10:30\",\n            \"endTime\": \"11:30\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"14:30\",\n            \"endTime\": \"15:30\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"15:30\",\n            \"endTime\": \"16:30\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"16:30\",\n            \"endTime\": \"17:30\",\n            \"isAvailable\": true\n        },\n        {\n            \"startTime\": \"17:30\",\n            \"endTime\": \"18:30\",\n            \"isAvailable\": true\n        }\n    ],\n    \"notes\": \"Updated schedule with extended hours\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/{{schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "{{schedule_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Workshop Schedule",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/{{schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "{{schedule_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Workshop Availability",
+			"item": [
+				{
+					"name": "Get Workshop Availability for Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/{{workshop_id}}/availability/2025-07-15",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "{{workshop_id}}", "availability", "2025-07-15"]
+						}
+					}
+				},
+				{
+					"name": "Get Workshop Availability - Closed Day",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/{{workshop_id}}/availability/2025-07-13",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "{{workshop_id}}", "availability", "2025-07-13"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Weekly Schedule Creation",
+			"item": [
+				{
+					"name": "Create Complete Weekly Schedule",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"weeklySchedule\": [\n        {\n            \"dayOfWeek\": 1,\n            \"isOpen\": true,\n            \"openTime\": \"08:00\",\n            \"closeTime\": \"18:00\",\n            \"timeSlots\": [\n                {\"startTime\": \"08:00\", \"endTime\": \"09:00\", \"isAvailable\": true},\n                {\"startTime\": \"09:00\", \"endTime\": \"10:00\", \"isAvailable\": true},\n                {\"startTime\": \"10:00\", \"endTime\": \"11:00\", \"isAvailable\": true},\n                {\"startTime\": \"11:00\", \"endTime\": \"12:00\", \"isAvailable\": true},\n                {\"startTime\": \"14:00\", \"endTime\": \"15:00\", \"isAvailable\": true},\n                {\"startTime\": \"15:00\", \"endTime\": \"16:00\", \"isAvailable\": true},\n                {\"startTime\": \"16:00\", \"endTime\": \"17:00\", \"isAvailable\": true},\n                {\"startTime\": \"17:00\", \"endTime\": \"18:00\", \"isAvailable\": true}\n            ],\n            \"breakTimes\": [{\"startTime\": \"12:00\", \"endTime\": \"14:00\", \"reason\": \"Lunch\"}],\n            \"maxConcurrentAppointments\": 3\n        },\n        {\n            \"dayOfWeek\": 2,\n            \"isOpen\": true,\n            \"openTime\": \"08:00\",\n            \"closeTime\": \"18:00\",\n            \"timeSlots\": [\n                {\"startTime\": \"08:00\", \"endTime\": \"09:00\", \"isAvailable\": true},\n                {\"startTime\": \"09:00\", \"endTime\": \"10:00\", \"isAvailable\": true},\n                {\"startTime\": \"10:00\", \"endTime\": \"11:00\", \"isAvailable\": true},\n                {\"startTime\": \"11:00\", \"endTime\": \"12:00\", \"isAvailable\": true},\n                {\"startTime\": \"14:00\", \"endTime\": \"15:00\", \"isAvailable\": true},\n                {\"startTime\": \"15:00\", \"endTime\": \"16:00\", \"isAvailable\": true},\n                {\"startTime\": \"16:00\", \"endTime\": \"17:00\", \"isAvailable\": true},\n                {\"startTime\": \"17:00\", \"endTime\": \"18:00\", \"isAvailable\": true}\n            ],\n            \"breakTimes\": [{\"startTime\": \"12:00\", \"endTime\": \"14:00\", \"reason\": \"Lunch\"}],\n            \"maxConcurrentAppointments\": 3\n        },\n        {\n            \"dayOfWeek\": 3,\n            \"isOpen\": true,\n            \"openTime\": \"08:00\",\n            \"closeTime\": \"18:00\",\n            \"timeSlots\": [\n                {\"startTime\": \"08:00\", \"endTime\": \"09:00\", \"isAvailable\": true},\n                {\"startTime\": \"09:00\", \"endTime\": \"10:00\", \"isAvailable\": true},\n                {\"startTime\": \"10:00\", \"endTime\": \"11:00\", \"isAvailable\": true},\n                {\"startTime\": \"11:00\", \"endTime\": \"12:00\", \"isAvailable\": true},\n                {\"startTime\": \"14:00\", \"endTime\": \"15:00\", \"isAvailable\": true},\n                {\"startTime\": \"15:00\", \"endTime\": \"16:00\", \"isAvailable\": true},\n                {\"startTime\": \"16:00\", \"endTime\": \"17:00\", \"isAvailable\": true},\n                {\"startTime\": \"17:00\", \"endTime\": \"18:00\", \"isAvailable\": true}\n            ],\n            \"breakTimes\": [{\"startTime\": \"12:00\", \"endTime\": \"14:00\", \"reason\": \"Lunch\"}],\n            \"maxConcurrentAppointments\": 3\n        },\n        {\n            \"dayOfWeek\": 4,\n            \"isOpen\": true,\n            \"openTime\": \"08:00\",\n            \"closeTime\": \"18:00\",\n            \"timeSlots\": [\n                {\"startTime\": \"08:00\", \"endTime\": \"09:00\", \"isAvailable\": true},\n                {\"startTime\": \"09:00\", \"endTime\": \"10:00\", \"isAvailable\": true},\n                {\"startTime\": \"10:00\", \"endTime\": \"11:00\", \"isAvailable\": true},\n                {\"startTime\": \"11:00\", \"endTime\": \"12:00\", \"isAvailable\": true},\n                {\"startTime\": \"14:00\", \"endTime\": \"15:00\", \"isAvailable\": true},\n                {\"startTime\": \"15:00\", \"endTime\": \"16:00\", \"isAvailable\": true},\n                {\"startTime\": \"16:00\", \"endTime\": \"17:00\", \"isAvailable\": true},\n                {\"startTime\": \"17:00\", \"endTime\": \"18:00\", \"isAvailable\": true}\n            ],\n            \"breakTimes\": [{\"startTime\": \"12:00\", \"endTime\": \"14:00\", \"reason\": \"Lunch\"}],\n            \"maxConcurrentAppointments\": 3\n        },\n        {\n            \"dayOfWeek\": 5,\n            \"isOpen\": true,\n            \"openTime\": \"08:00\",\n            \"closeTime\": \"17:00\",\n            \"timeSlots\": [\n                {\"startTime\": \"08:00\", \"endTime\": \"09:00\", \"isAvailable\": true},\n                {\"startTime\": \"09:00\", \"endTime\": \"10:00\", \"isAvailable\": true},\n                {\"startTime\": \"10:00\", \"endTime\": \"11:00\", \"isAvailable\": true},\n                {\"startTime\": \"11:00\", \"endTime\": \"12:00\", \"isAvailable\": true},\n                {\"startTime\": \"14:00\", \"endTime\": \"15:00\", \"isAvailable\": true},\n                {\"startTime\": \"15:00\", \"endTime\": \"16:00\", \"isAvailable\": true},\n                {\"startTime\": \"16:00\", \"endTime\": \"17:00\", \"isAvailable\": true}\n            ],\n            \"breakTimes\": [{\"startTime\": \"12:00\", \"endTime\": \"14:00\", \"reason\": \"Lunch\"}],\n            \"maxConcurrentAppointments\": 3,\n            \"notes\": \"Friday - early closing\"\n        },\n        {\n            \"dayOfWeek\": 6,\n            \"isOpen\": true,\n            \"openTime\": \"09:00\",\n            \"closeTime\": \"14:00\",\n            \"timeSlots\": [\n                {\"startTime\": \"09:00\", \"endTime\": \"10:00\", \"isAvailable\": true},\n                {\"startTime\": \"10:00\", \"endTime\": \"11:00\", \"isAvailable\": true},\n                {\"startTime\": \"11:00\", \"endTime\": \"12:00\", \"isAvailable\": true},\n                {\"startTime\": \"12:00\", \"endTime\": \"13:00\", \"isAvailable\": true},\n                {\"startTime\": \"13:00\", \"endTime\": \"14:00\", \"isAvailable\": true}\n            ],\n            \"maxConcurrentAppointments\": 2,\n            \"notes\": \"Saturday - reduced hours\"\n        },\n        {\n            \"dayOfWeek\": 0,\n            \"isOpen\": false,\n            \"notes\": \"Sunday - Closed\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/{{workshop_id}}/weekly",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "{{workshop_id}}", "weekly"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Filtered Queries",
+			"item": [
+				{
+					"name": "Get Open Days Only",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules?filter={\"isOpen\":true}&populate=workshop",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules"],
+							"query": [
+								{
+									"key": "filter",
+									"value": "{\"isOpen\":true}"
+								},
+								{
+									"key": "populate",
+									"value": "workshop"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Schedules by Day of Week",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules?filter={\"dayOfWeek\":1}&populate=workshop",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules"],
+							"query": [
+								{
+									"key": "filter",
+									"value": "{\"dayOfWeek\":1}"
+								},
+								{
+									"key": "populate",
+									"value": "workshop"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Weekend Schedules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules?filter={\"dayOfWeek\":{\"$in\":[0,6]}}&populate=workshop",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules"],
+							"query": [
+								{
+									"key": "filter",
+									"value": "{\"dayOfWeek\":{\"$in\":[0,6]}}"
+								},
+								{
+									"key": "populate",
+									"value": "workshop"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Error Handling Tests",
+			"item": [
+				{
+					"name": "Create Invalid Schedule - Missing Workshop",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dayOfWeek\": 1,\n    \"isOpen\": true,\n    \"openTime\": \"08:00\",\n    \"closeTime\": \"18:00\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules"]
+						}
+					}
+				},
+				{
+					"name": "Create Invalid Schedule - Invalid Day",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"workshop\": \"{{workshop_id}}\",\n    \"dayOfWeek\": 8,\n    \"isOpen\": true,\n    \"openTime\": \"08:00\",\n    \"closeTime\": \"18:00\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules"]
+						}
+					}
+				},
+				{
+					"name": "Get Non-existent Schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/676000000000000000000000",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "676000000000000000000000"]
+						}
+					}
+				},
+				{
+					"name": "Update Non-existent Schedule",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"openTime\": \"09:00\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workshop-schedules/676000000000000000000000",
+							"host": ["{{base_url}}"],
+							"path": ["workshop-schedules", "676000000000000000000000"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

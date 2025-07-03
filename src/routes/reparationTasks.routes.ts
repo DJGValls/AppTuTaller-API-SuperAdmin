@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { checkRoles } from "middlewares/roles.middleware";
+import { requirePermissions } from "middlewares/permissions.middleware";
 import { getPermissions } from "middlewares/auth.middleware";
 import { validate } from "middlewares/validate.middleware";
 import { reparationTaskCreateSchema } from "schemas/reparationTasks/reparationTaskCreate.schema";
@@ -12,19 +13,25 @@ import {
     restoreReparationTask, 
     updateReparationTask 
 } from "controllers/reparationTasks.controller";
+import { UserPermissionsEnum } from "enums/UserPermissions.enums";
 
 const router = Router();
 
-router.get('/', getPermissions, findReparationTasks);
+// Admins y empleados pueden ver tareas, clientes pueden ver las de sus órdenes
+router.get('/', getPermissions, requirePermissions([UserPermissionsEnum.REPARATION_TASKS_READ]), findReparationTasks);
 
-router.get('/:id', getPermissions, findReparationTaskById);
+router.get('/:id', getPermissions, requirePermissions([UserPermissionsEnum.REPARATION_TASKS_READ]), findReparationTaskById);
 
-router.post('/', validate(reparationTaskCreateSchema), getPermissions, checkRoles, createReparationTask);
+// Solo admins y empleados pueden crear tareas
+router.post('/', validate(reparationTaskCreateSchema), getPermissions, requirePermissions([UserPermissionsEnum.REPARATION_TASKS_CREATE]), createReparationTask);
 
-router.put('/:id', validate(reparationTaskUpdateSchema), getPermissions, updateReparationTask);
+// Solo admins y empleados pueden actualizar tareas
+router.put('/:id', validate(reparationTaskUpdateSchema), getPermissions, requirePermissions([UserPermissionsEnum.REPARATION_TASKS_UPDATE]), updateReparationTask);
 
-router.delete('/:id', getPermissions, deleteReparationTask);
+// Solo admins pueden eliminar tareas
+router.delete('/:id', getPermissions, requirePermissions([UserPermissionsEnum.REPARATION_TASKS_DELETE]), deleteReparationTask);
 
-router.get('/:id/restore', getPermissions, restoreReparationTask);
+// Solo admins pueden restaurar tareas
+router.get('/:id/restore', getPermissions, requirePermissions([UserPermissionsEnum.REPARATION_TASKS_UPDATE]), restoreReparationTask);
 
 export default router;

@@ -12,7 +12,7 @@ import { WorkshopRepository } from "repositories/workshopRepositories";
 import { ContactService } from "services/contactService";
 import { ReparationOrderService } from "services/reparationOrderService";
 import { ReparationTaskService } from "services/reparationTaskService";
-import { RolesService } from "services/RolesService";
+import { RolesService } from "services/rolesService";
 import { SubscriptionDurationService } from "services/subscriptionDurationService";
 import { SubscriptionService } from "services/subscriptionService";
 import { UserService } from "services/userService";
@@ -130,6 +130,19 @@ export const createInitialSetup = async () => {
                     UserPermissionsEnum.REPARATION_TASKS_CREATE,
                     UserPermissionsEnum.REPARATION_TASKS_UPDATE,
                     UserPermissionsEnum.REPARATION_TASKS_DELETE,
+                    // Permisos de citas
+                    UserPermissionsEnum.APPOINTMENTS_READ,
+                    UserPermissionsEnum.APPOINTMENTS_CREATE,
+                    UserPermissionsEnum.APPOINTMENTS_UPDATE,
+                    UserPermissionsEnum.APPOINTMENTS_DELETE,
+                    UserPermissionsEnum.APPOINTMENTS_MANAGE,
+                    UserPermissionsEnum.APPOINTMENTS_VIEW_AVAILABILITY,
+                    // Permisos de horarios de taller
+                    UserPermissionsEnum.WORKSHOP_SCHEDULES_READ,
+                    UserPermissionsEnum.WORKSHOP_SCHEDULES_CREATE,
+                    UserPermissionsEnum.WORKSHOP_SCHEDULES_UPDATE,
+                    UserPermissionsEnum.WORKSHOP_SCHEDULES_DELETE,
+                    UserPermissionsEnum.WORKSHOP_SCHEDULES_MANAGE,
                 ],
             } as Roles);
             employeeRole = await rolesService.createRoles({
@@ -143,6 +156,12 @@ export const createInitialSetup = async () => {
                     UserPermissionsEnum.REPARATION_TASKS_READ,
                     UserPermissionsEnum.REPARATION_TASKS_CREATE,
                     UserPermissionsEnum.REPARATION_TASKS_UPDATE,
+                    // Permisos de citas (solo lectura y gestión)
+                    UserPermissionsEnum.APPOINTMENTS_READ,
+                    UserPermissionsEnum.APPOINTMENTS_MANAGE, // puede iniciar/completar
+                    UserPermissionsEnum.APPOINTMENTS_VIEW_AVAILABILITY,
+                    // Permisos de horarios (solo lectura)
+                    UserPermissionsEnum.WORKSHOP_SCHEDULES_READ,
                 ],
             } as Roles);
             clientRole = await rolesService.createRoles({
@@ -153,6 +172,11 @@ export const createInitialSetup = async () => {
                     UserPermissionsEnum.CONTACTS_UPDATE,
                     UserPermissionsEnum.REPARATION_ORDERS_READ,
                     UserPermissionsEnum.REPARATION_TASKS_READ,
+                    // Permisos de citas (crear y ver sus propias citas)
+                    UserPermissionsEnum.APPOINTMENTS_READ,
+                    UserPermissionsEnum.APPOINTMENTS_CREATE,
+                    UserPermissionsEnum.APPOINTMENTS_UPDATE, // sus propias citas
+                    UserPermissionsEnum.APPOINTMENTS_VIEW_AVAILABILITY,
                 ],
             } as Roles);
             console.log("Roles created successfully");
